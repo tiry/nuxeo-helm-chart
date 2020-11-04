@@ -42,9 +42,7 @@ elasticsearch:
 
 ## Values taken from the Kafka chart: https://github.com/helm/charts/blob/master/incubator/kafka/values.yaml
 kafka:
-  replicas: 3
-  updateStrategy:
-    type: RollingUpdate # By default set to "OnDelete", the legacy behavior
+  replicaCount: 3
   persistence:
     enabled: true 
   zookeeper:
