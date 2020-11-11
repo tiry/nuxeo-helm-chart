@@ -2,7 +2,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ template "nuxeo.fullname" . }}
+  name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
   namespace: {{ .Values.nuxeo.tenantId }}
   labels:
     app: {{ template "nuxeo.name" . }}
@@ -17,7 +17,11 @@ metadata:
       {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
-  backend:
-    serviceName: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
-    servicePort: {{ .Values.nuxeo.service.externalPort}}
+  rules:
+  - host: {{ .Values.nuxeo.tenantId }}.nxtest
+    http:
+      paths:
+      - backend:
+          serviceName: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
+          servicePort: {{ .Values.nuxeo.service.externalPort}}
 {{- end -}}

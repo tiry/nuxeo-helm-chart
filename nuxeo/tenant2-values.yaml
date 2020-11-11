@@ -1,0 +1,9 @@
+nuxeo:
+  packages: nuxeo-web-ui 
+  enable: true
+  image:
+    repository: gcr.io/jx-preprod/nuxeo-tiry
+  enable: true
+  ingress:
+    enabled: true
+  tenantId: company-b
