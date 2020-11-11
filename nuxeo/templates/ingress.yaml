@@ -16,6 +16,8 @@ metadata:
     {{- range $key, $value := .Values.nuxeo.ingress.annotations }}
       {{ $key }}: {{ $value | quote }}
     {{- end }}
+      nginx.ingress.kubernetes.io/affinity: cookie
+      nginx.ingress.kubernetes.io/affinity-mode: persistent
 spec:
   rules:
   - host: {{ .Values.nuxeo.tenantId }}.nxtest
