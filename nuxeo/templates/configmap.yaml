@@ -1,8 +1,8 @@
-{{- if .Values.nuxeo.enable }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "nuxeo.fullname" . }}-conf
+  name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-conf
+  namespace: {{ .Values.nuxeo.tenantId }}
   labels:
     app: {{ template "nuxeo.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -17,8 +17,8 @@ data:
     nuxeo.stream.pubsub.log.codec=avro
 {{- if or .Values.mongodb.deploy .Values.tags.mongodb }}
     nuxeo.templates=default,mongodb
-    nuxeo.mongodb.server=mongodb://{{ .Release.Name }}-mongodb:27017
-    nuxeo.mongodb.dbname={{ .Values.nuxeo.mongodb.dbname }}
+    nuxeo.mongodb.server=mongodb://{{ .Release.Name }}-mongodb.nx-shared-storage.svc.cluster.local:27017
+    nuxeo.mongodb.dbname={{ .Values.nuxeo.tenantId }}
 {{- end }}
 {{- if or .Values.postgresql.deploy .Values.tags.postgresql }}
     nuxeo.templates=default,postgresql
@@ -31,17 +31,18 @@ data:
 {{- if or .Values.elasticsearch.deploy .Values.tags.elasticsearch }}
     elasticsearch.client=RestClient
     elasticsearch.clusterName={{ .Values.nuxeo.elasticsearch.clusterName }}
-    elasticsearch.addressList=http://elasticsearch-master:9200
-    elasticsearch.indexName={{ .Values.nuxeo.elasticsearch.indexName }}
+    elasticsearch.addressList=http://{{ .Release.Name }}-elasticsearch-client.nx-shared-storage.svc.cluster.local:9200
+    elasticsearch.indexName={{ .Values.nuxeo.tenantId }}
     elasticsearch.indexNumberOfReplicas={{ .Values.nuxeo.elasticsearch.indexNumberOfReplicas }}
     elasticsearch.restClient.socketTimeoutMs={{ .Values.nuxeo.elasticsearch.restClient.socketTimeoutMs }}
     elasticsearch.restClient.connectionTimeoutMs={{ .Values.nuxeo.elasticsearch.restClient.connectionTimeoutMs }}
 {{- end }}
 {{- if or .Values.kafka.deploy .Values.tags.kafka}}
     kafka.enabled=true
-    kafka.bootstrap.servers={{ .Release.Name }}-kafka-headless:9092
+    kafka.bootstrap.servers={{ .Release.Name }}-kafka-headless.nx-shared-storage.svc.cluster.local:9092
     nuxeo.stream.work.enabled=true
     nuxeo.pubsub.provider=stream
+    kafka.topicPrefix={{ .Values.nuxeo.tenantId }}-
 {{- end }}
 {{- if or .Values.redis.deploy .Values.tags.redis }}
 {{- if or .Values.mongodb.deploy .Values.tags.mongodb }}
@@ -58,4 +59,30 @@ data:
 {{- if .Values.nuxeo.customParams }}
 {{ .Values.nuxeo.customParams | indent 4 }}
 {{- end }}
+{{- if .Values.tags.gcs }}
+    nuxeo.core.binarymanager=org.nuxeo.ecm.core.storage.gcp.GoogleStorageBinaryManager
+    nuxeo.gcp.storage.bucket= {{ .Values.gcs.bucketname }}
+    nuxeo.gcp.storage.bucket_prefix={{ .Values.nuxeo.tenantId }}
+    nuxeo.gcp.project={{ .Values.gcs.project }}
+    nuxeo.gcp.credentials=/opt/nuxeo/gcp/gcp-credentials.json
 {{- end }}
+    repository.clustering.enabled=true     
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-gcp-config
+  namespace: {{ .Values.nuxeo.tenantId }}
+  labels:
+    app: {{ template "nuxeo.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    role: config
+data:
+  gcp-credentials.json: |-
+    {
+      "type": "service_account",
+      "project_id": "jx-preprod",
+    }
+

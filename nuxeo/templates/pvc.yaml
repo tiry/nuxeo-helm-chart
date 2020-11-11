@@ -1,11 +1,11 @@
-{{- if and .Values.nuxeo.enable .Values.nuxeo.persistence.enabled }}
-{{- if .Values.nuxeo.persistence.size.binaries }}
+{{- if and .Values.nuxeo.persistence.size.binaries (not .Values.tags.gcs)}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "nuxeo.fullname" . }}-binaries
+  name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-binaries
+  namespace: {{ .Values.nuxeo.tenantId }}
   labels:
-    app: {{ template "nuxeo.fullname" . }}
+    app: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
@@ -30,9 +30,10 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "nuxeo.fullname" . }}-log
+  name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-log
+  namespace: {{ .Values.nuxeo.tenantId }}
   labels:
-    app: {{ template "nuxeo.fullname" . }}
+    app: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
@@ -51,5 +52,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.nuxeo.persistence.size.log | quote }}
-{{- end }}
 {{- end }}

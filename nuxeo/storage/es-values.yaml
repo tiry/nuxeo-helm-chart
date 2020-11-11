@@ -1,0 +1,54 @@
+## Values taken from the Elasticsearch chart: https://github.com/helm/charts/blob/master/stable/elasticsearch/values.yaml
+elasticsearch:
+  image:
+    tag: "6.8.6"
+  cluster:
+    env:
+      MINIMUM_MASTER_NODES: "2"
+      EXPECTED_MASTER_NODES: "1"
+      RECOVER_AFTER_MASTER_NODES: "1" 
+  serviceAccounts:
+    client:
+      create: false
+      name:
+    master:
+      create: false
+      name:
+    data:
+      create: false
+      name:      
+  client:
+    replicas: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1024Mi
+  master:
+    replicas: 3
+    updateStrategy:
+      type: RollingUpdate # By default set to "OnDelete", the legacy behavior
+    persistence:
+      enabled: true
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1024Mi
+  data:
+    replicas: 2
+    updateStrategy:
+      type: RollingUpdate # By default set to "OnDelete", the legacy behavior
+    persistence:
+      enabled: true
+    resources:
+      requests:
+        cpu: 250m
+        memory: 1536Mi
+      limits:
+        cpu: 1
+        memory: 2048Mi      

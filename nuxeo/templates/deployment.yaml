@@ -1,8 +1,15 @@
-{{- if .Values.nuxeo.enable }}
+apiVersion: v1
+kind: Namespace
+metadata: 
+  name: {{ .Values.nuxeo.tenantId }}
+  labels:
+    name: {{ .Values.nuxeo.tenantId }}
+---  
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "nuxeo.fullname" . }}
+  name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
+  namespace: {{ .Values.nuxeo.tenantId }}
   labels:
     draft: {{ default "draft-app" .Values.nuxeo.draft }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
@@ -10,13 +17,13 @@ spec:
   selector:
     matchLabels:
       draft: {{ default "draft-app" .Values.nuxeo.draft }}
-      app: {{ template "nuxeo.fullname" . }}
+      app: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
   replicas: {{ .Values.nuxeo.replicaCount }}
   template:
     metadata:
       labels:
         draft: {{ default "draft-app" .Values.nuxeo.draft }}
-        app: {{ template "nuxeo.fullname" . }}
+        app: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
 {{- with .Values.nuxeo.podLabels }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -84,16 +91,18 @@ spec:
             mountPath: /var/lib/nuxeo/binaries
           - name: log
             mountPath: /var/log/nuxeo
+          - name: gcpcconfig
+            mountPath: /opt/nuxeo/gcp
       initContainers:
 {{- if or .Values.elasticsearch.deploy .Values.tags.elasticsearch }}
       - name: init-elasticsearch
         image: busybox
-        command: ['sh', '-c', 'until nc -w1 elasticsearch-master 9200; do echo "waiting for elastic"; sleep 2; done;']
+        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-elasticsearch-client.default.svc.cluster.local 9200; do echo "waiting for elastic"; sleep 2; done;']
 {{- end }}
 {{- if or .Values.mongodb.deploy .Values.tags.mongodb }}
       - name: init-mongodb
         image: busybox
-        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-mongodb 27017; do echo "waiting for mongodb"; sleep 2; done;']
+        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-mongodb.default.svc.cluster.local 27017; do echo "waiting for mongodb"; sleep 2; done;']
 {{- end }}
 {{- if or .Values.postgresql.deploy .Values.tags.postgresql }}
       - name: init-postgresql
@@ -103,26 +112,28 @@ spec:
 {{- if or .Values.kafka.deploy .Values.tags.kafka}}
       - name: init-kafka
         image: busybox
-        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-kafka-headless 9092; do echo "waiting for kafka"; sleep 2; done;']
+        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-kafka-headless.default.svc.cluster.local 9092; do echo "waiting for kafka"; sleep 2; done;']
 {{- end }}
       securityContext:
         fsGroup: 1000
       volumes:
       - name: nuxeoconf
         configMap:
-          name: {{ template "nuxeo.fullname" . }}-conf
+          name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-conf
       - name: binaries
-        {{- if .Values.nuxeo.persistence.enabled }}
+        {{- if and .Values.nuxeo.persistence.enabled (not .Values.tags.gcs)}}
         persistentVolumeClaim:
-          claimName: {{ template "nuxeo.fullname" . }}-binaries
+          claimName: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-binaries
         {{- else }}
         emptyDir: {}
         {{- end }}
       - name: log
         {{- if .Values.nuxeo.persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ template "nuxeo.fullname" . }}-log
+          claimName: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-log
         {{- else }}
         emptyDir: {}
         {{- end }}
-{{- end }}
+      - name: gcpcconfig
+        configMap:
+          name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-gcp-config

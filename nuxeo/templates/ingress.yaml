@@ -3,6 +3,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ template "nuxeo.fullname" . }}
+  namespace: {{ .Values.nuxeo.tenantId }}
   labels:
     app: {{ template "nuxeo.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
@@ -17,6 +18,6 @@ metadata:
     {{- end }}
 spec:
   backend:
-    serviceName: {{ template "nuxeo.fullname" . }}
+    serviceName: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
     servicePort: {{ .Values.nuxeo.service.externalPort}}
 {{- end -}}

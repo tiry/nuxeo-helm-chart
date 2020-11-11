@@ -1,0 +1,24 @@
+kafka:
+  imageTag: "5.4.1"
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate # By default set to "OnDelete", the legacy behavior
+  persistence:
+    enabled: true 
+  zookeeper:
+    image:
+      tag: "3.6.0"
+    replicaCount: 1  
+    persistence:
+      enabled: true
+  prometheus:
+    operator:
+      enabled: false
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1024Mi
+    limits:
+      cpu: 1
+      memory: 1536Mi 
+  
