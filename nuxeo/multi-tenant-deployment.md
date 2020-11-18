@@ -19,9 +19,6 @@ XXX install Helm 3
 
 # Deploy nuxeo Cluster
 
-
-
-
 ## Principles used to deploy multiple nuxeo application
 
 ### Shared storage

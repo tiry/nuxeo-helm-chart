@@ -127,5 +127,5 @@ spec:
         emptyDir: {}
         {{- end }}
       - name: gcpcconfig
-        configMap:
-          name: {{ template "nuxeo.fullname" . }}-gcp-config
+        secret:
+          secretName: {{ template "nuxeo.fullname" . }}-gcp-sa
