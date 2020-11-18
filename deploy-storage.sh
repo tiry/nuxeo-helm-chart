@@ -1,7 +1,9 @@
 #/bin/bash
 
 echo "Deploy Elasticsearch"
-helm3 upgrade -i  nuxeo-es  elasticsearch --repo https://helm.elastic.co  --version 7.9.2 -n nx-shared-storage --create-namespace  -f storage/es-values.yaml 
+#helm3 upgrade -i  nuxeo-es  elasticsearch --repo https://helm.elastic.co  --version 7.9.2 -n   nx-shared-storage  --create-namespace  -f storage/es-values.yaml 
+
+helm3 upgrade -i  nuxeo-es  elasticsearch --repo https://helm.elastic.co  --version 6.8.13 -n nx-shared-storage    --create-namespace  -f storage/es-values.yaml 
 
 
 echo "Deploy MongoDB"

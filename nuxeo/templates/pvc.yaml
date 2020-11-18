@@ -2,10 +2,9 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-binaries
-  namespace: {{ .Values.nuxeo.tenantId }}
+  name: {{ template "nuxeo.fullname" . }}-binaries
   labels:
-    app: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
+    app: {{ template "nuxeo.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
@@ -30,10 +29,9 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-log
-  namespace: {{ .Values.nuxeo.tenantId }}
+  name: {{ template "nuxeo.fullname" . }}-log
   labels:
-    app: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
+    app: {{ template "nuxeo.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"

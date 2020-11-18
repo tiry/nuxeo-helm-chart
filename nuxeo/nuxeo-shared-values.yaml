@@ -1,0 +1,23 @@
+nuxeo:
+  packages: nuxeo-web-ui google-storage
+  prefix: nuxeo
+  enable: true
+  image:
+    repository: gcr.io/jx-preprod/nuxeo-tiry
+  enable: true
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/affinity: cookie
+      nginx.ingress.kubernetes.io/affinity-mode: persistent
+  replicaCount: 2
+  mongodb:
+    server: mongodb://root:vkGniYS3qL@nuxeo-mongodb.nx-shared-storage.svc.cluster.local:27017
+tags:
+  mongodb: true
+  kafka: true
+  elasticsearch: true
+  gcs: true
+gcs:
+  project: "jx-preprod"
+  bucketname: "nuxeo-multitenant-storage-bucket"  

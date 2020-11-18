@@ -2,8 +2,9 @@
 
 echo "Deploy tenant1"
 
-#kubectl create namespace company-a
-helm3 upgrade -i nuxeo-t1 \
+helm3 upgrade -i nuxeo \
+     -n tenant1 --create-namespace \
+	 -f nuxeo/nuxeo-shared-values.yaml \
 	 -f nuxeo/tenant1-values.yaml \
 	 --debug \
 	 --set nuxeo.clid=${NXCLID} \

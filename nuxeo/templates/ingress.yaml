@@ -2,8 +2,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
-  namespace: {{ .Values.nuxeo.tenantId }}
+  name: {{ template "nuxeo.fullname" . }}
   labels:
     app: {{ template "nuxeo.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
@@ -16,14 +15,12 @@ metadata:
     {{- range $key, $value := .Values.nuxeo.ingress.annotations }}
       {{ $key }}: {{ $value | quote }}
     {{- end }}
-      nginx.ingress.kubernetes.io/affinity: cookie
-      nginx.ingress.kubernetes.io/affinity-mode: persistent
 spec:
   rules:
-  - host: {{ .Values.nuxeo.tenantId }}.nxtest
+  - host: {{ .Values.nuxeo.prefix }}.nxtest
     http:
       paths:
       - backend:
-          serviceName: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}
+          serviceName: {{ template "nuxeo.fullname" . }}
           servicePort: {{ .Values.nuxeo.service.externalPort}}
 {{- end -}}

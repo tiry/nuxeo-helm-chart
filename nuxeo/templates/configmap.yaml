@@ -1,8 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-conf
-  namespace: {{ .Values.nuxeo.tenantId }}
+  name: {{ template "nuxeo.fullname" . }}-conf
   labels:
     app: {{ template "nuxeo.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -17,8 +16,8 @@ data:
     nuxeo.stream.pubsub.log.codec=avro
 {{- if or .Values.mongodb.deploy .Values.tags.mongodb }}
     nuxeo.templates=default,mongodb
-    nuxeo.mongodb.server=mongodb://{{ .Release.Name }}-mongodb.nx-shared-storage.svc.cluster.local:27017
-    nuxeo.mongodb.dbname={{ .Values.nuxeo.tenantId }}
+    nuxeo.mongodb.server={{ .Values.nuxeo.mongodb.server }}
+    nuxeo.mongodb.dbname={{ .Values.nuxeo.prefix }}
 {{- end }}
 {{- if or .Values.postgresql.deploy .Values.tags.postgresql }}
     nuxeo.templates=default,postgresql
@@ -31,8 +30,8 @@ data:
 {{- if or .Values.elasticsearch.deploy .Values.tags.elasticsearch }}
     elasticsearch.client=RestClient
     elasticsearch.clusterName={{ .Values.nuxeo.elasticsearch.clusterName }}
-    elasticsearch.addressList=http://{{ .Release.Name }}-elasticsearch-client.nx-shared-storage.svc.cluster.local:9200
-    elasticsearch.indexName={{ .Values.nuxeo.tenantId }}
+    elasticsearch.addressList=http://elasticsearch-master.nx-shared-storage.svc.cluster.local:9200
+    elasticsearch.indexName={{ .Values.nuxeo.prefix }}
     elasticsearch.indexNumberOfReplicas={{ .Values.nuxeo.elasticsearch.indexNumberOfReplicas }}
     elasticsearch.restClient.socketTimeoutMs={{ .Values.nuxeo.elasticsearch.restClient.socketTimeoutMs }}
     elasticsearch.restClient.connectionTimeoutMs={{ .Values.nuxeo.elasticsearch.restClient.connectionTimeoutMs }}
@@ -42,7 +41,7 @@ data:
     kafka.bootstrap.servers={{ .Release.Name }}-kafka-headless.nx-shared-storage.svc.cluster.local:9092
     nuxeo.stream.work.enabled=true
     nuxeo.pubsub.provider=stream
-    kafka.topicPrefix={{ .Values.nuxeo.tenantId }}-
+    kafka.topicPrefix={{ .Values.nuxeo.prefix }}-
 {{- end }}
 {{- if or .Values.redis.deploy .Values.tags.redis }}
 {{- if or .Values.mongodb.deploy .Values.tags.mongodb }}
@@ -62,7 +61,7 @@ data:
 {{- if .Values.tags.gcs }}
     nuxeo.core.binarymanager=org.nuxeo.ecm.core.storage.gcp.GoogleStorageBinaryManager
     nuxeo.gcp.storage.bucket= {{ .Values.gcs.bucketname }}
-    nuxeo.gcp.storage.bucket_prefix={{ .Values.nuxeo.tenantId }}
+    nuxeo.gcp.storage.bucket_prefix={{ .Values.nuxeo.prefix }}
     nuxeo.gcp.project={{ .Values.gcs.project }}
     nuxeo.gcp.credentials=/opt/nuxeo/gcp/gcp-credentials.json
 {{- end }}
@@ -71,8 +70,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "nuxeo.fullname" . }}-{{ .Values.nuxeo.tenantId }}-gcp-config
-  namespace: {{ .Values.nuxeo.tenantId }}
+  name: {{ template "nuxeo.fullname" . }}-gcp-config
   labels:
     app: {{ template "nuxeo.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -84,5 +82,13 @@ data:
     {
       "type": "service_account",
       "project_id": "jx-preprod",
+      "private_key_id": "d523ed02eed60bc9105e4d53955f6342f7d2565c",
+      "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC11jG8QLMANCOT\niN+VcwCL2jskyOcr+X4A1Z4mXzYw0yHfX6kpLsPp2puqc7lSS2fe+c+KN08B9U+6\nIC7OBh8T2eROjU+xcsZuYT2Cc4tXNcW8eUCkpFuytoFY1ZuKR6NQnPntLaxju9Oh\n6bZCbT14KKR9geUmLxTIJ5vDzAjeS5KS4m+JoIooUmLuqPAxyn6xwckjUL1Rz7jl\nuYwFyR4DpRIWcqVF/Nnb6bESje32D+fPnTaNJTgXdm5iWjOY6VZjJQ8C7y1YysZ8\nMPuzk3Uo2mPUafvVs6IRrl7v39UeVKIJ6mou+OcCCc/x2f+mQftdbRm8PFYvpv5A\nJ/gWpUL7AgMBAAECggEAK51iVZSxOrnG1MLuWhL5DRJ9wC9+H3Ka8glLA0owHdru\nk30G/q1MaaG5V9OlHmOe2QFTcgQdK8uS4YKJp3oZZzIKzHqhpF7y0JP7ZHhhcjwg\nHzp4MmWH5yBWex/VTIAtYI8edXDQmiV5uCruQBWiulkJR19qPtPpKK8zce3VLLhL\n4SfoyvALk3sJ9oqq85QYgO/are4tT9IvfeRAKLe5KVCY1mle8IVF6z5aP+9LGe1f\nsWz1ao7pFUFDhs4Upxd7UW+nzJG/2HNEB8MVsNwJ43sahi4ab1xYW6aScbUs0hlV\nv0sRxmkw2eiKs9bAI3j1ki4XOyqqKGnsV2qmai+IoQKBgQD98yp2/O+7CDmcQoHp\nHJe71y5GVkU4zbbpV3SLCYPf8v+rFR3DMYwkMCagTsVGRK9LUcQz6Byo42/s2CXK\n2xJcFvzizZLrC/mT0QiwmmBmlbdxobWhseRgEqTTy09JRJTvyRhVckEKNuTkvUjb\nQP7ktRaZBV73bsRdytyitHRhWwKBgQC3Tf5GuPURzlNMh6V368qnm426SgfK3pIy\npMWsv8m8MhWMzcCCIJ5NSeoLgg4H3QPKQ+jXqKbR0xSOSlCf3X0K4KHe1RRmjGCw\nmIZgH7nnr0UUlqNwD43TxJLN6r/ILP9uoCSGd6K6Tq8Zd1zboNdLRhW2XNs/azr2\nnoeAyX+24QKBgDRGwWAbM3JqAAoFut5071tQsYrzKW7HEjc4tJoGjGomiLD8ONM8\nuN+eNeVcMcoES52SqHQS/QtbPmggGq+Gp2HjrY02yl6uaWMfbc2FCgE0Ir42jsBJ\ncXzBecLLoHexsYMm/2Zfjbn/kODxgjT4TUBhctRvQZxn5e502zR3N1nvAoGAUjg1\nmdtUcYwuaOFfIw8sc0mepLSYEjMLOJQX5oiQIE4GxIV1l+ixmNFSnZ7UVEqabJtR\nUYpgaTVYvwouZ8adU8e2U5EX+Xd110BS5cLVTEqdncKDxLv1TcuaXaqyI0Orvx8t\nwvLeltq8R5v2lrzqVOU2z/mOjj+2zvAEr4uyMYECgYEAj0+I3c9wyK5Dq0Hkf8LI\ne1vM2zgS5mnRh4Z7Zvpg1IZYG1tFBfXP6l0hfjyHWca/fdknN4HT7Z0DRvNrwhHW\noHUeTsX0hLY6FmlzwRnrdGchZHgpynvw+LItEgD/75oQXHJUjaPPAgC6QyWqNEI6\ntfYX8AyDMBG552kOVLfRDgc=\n-----END PRIVATE KEY-----\n",
+      "client_email": "multitenant-nuxeo-sa@jx-preprod.iam.gserviceaccount.com",
+      "client_id": "112311918825738957815",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/multitenant-nuxeo-sa%40jx-preprod.iam.gserviceaccount.com"
     }
 

@@ -4,6 +4,9 @@ mongodb:
   image:
     tag: "4.2.7"    
   usePassword: false
+  auth:
+    enabled: false
+  architecture: replicaset
   serviceAccount:
     create: false    
   persistence:
