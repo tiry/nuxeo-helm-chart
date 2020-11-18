@@ -1,9 +1,13 @@
+{{- range tuple "api" "worker" }}
+{{- $nxNodeType := . -}}
+{{- with $ }}
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "nuxeo.fullname" . }}-conf
+  name: {{ template "nuxeo.fullname" . }}-conf-{{ $nxNodeType }}
   labels:
-    app: {{ template "nuxeo.fullname" . }}
+    app: {{ template "nuxeo.fullname" . }}-{{ $nxNodeType }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
@@ -66,3 +70,5 @@ data:
     nuxeo.gcp.credentials=/opt/nuxeo/gcp/gcp-credentials.json
 {{- end }}
     repository.clustering.enabled=true     
+{{- end }}
+{{- end }}

@@ -1,7 +1,11 @@
+{{- range tuple "api" "worker" }}
+{{- $nxNodeType := . -}}
+{{- with $ }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "nuxeo.fullname" . }}
+  name: {{ template "nuxeo.fullname" . }}-{{ $nxNodeType }}
   labels:
     draft: {{ default "draft-app" .Values.nuxeo.draft }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
@@ -9,8 +13,12 @@ spec:
   selector:
     matchLabels:
       draft: {{ default "draft-app" .Values.nuxeo.draft }}
-      app: {{ template "nuxeo.fullname" . }}
+      app: {{ template "nuxeo.fullname" . }}-{{ $nxNodeType }}
+{{- if eq $nxNodeType "api" }}
   replicas: {{ .Values.nuxeo.replicaCount }}
+{{- else }}
+  replicas: {{ .Values.nuxeo.workerCount }}
+{{- end }}
   template:
     metadata:
       labels:
@@ -111,7 +119,7 @@ spec:
       volumes:
       - name: nuxeoconf
         configMap:
-          name: {{ template "nuxeo.fullname" . }}-conf
+          name: {{ template "nuxeo.fullname" . }}-conf-{{ $nxNodeType }}
       - name: binaries
         {{- if and .Values.nuxeo.persistence.enabled (not .Values.tags.gcs)}}
         persistentVolumeClaim:
@@ -129,3 +137,5 @@ spec:
       - name: gcpcconfig
         secret:
           secretName: {{ template "nuxeo.fullname" . }}-gcp-sa
+{{- end }}
+{{- end }}

@@ -19,5 +19,5 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: {{ template "nuxeo.fullname" . }}
+    app: {{ template "nuxeo.fullname" . }}-api
 

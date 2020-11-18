@@ -11,6 +11,7 @@ nuxeo:
       nginx.ingress.kubernetes.io/affinity: cookie
       nginx.ingress.kubernetes.io/affinity-mode: persistent
   replicaCount: 2
+  workerCount: 1
   mongodb:
     server: nuxeo-mongodb.nx-shared-storage.svc.cluster.local
     credentials: root:vkGniYS3qL
