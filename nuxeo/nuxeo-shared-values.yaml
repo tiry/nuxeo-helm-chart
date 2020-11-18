@@ -12,7 +12,16 @@ nuxeo:
       nginx.ingress.kubernetes.io/affinity-mode: persistent
   replicaCount: 2
   mongodb:
-    server: mongodb://root:vkGniYS3qL@nuxeo-mongodb.nx-shared-storage.svc.cluster.local:27017
+    server: nuxeo-mongodb.nx-shared-storage.svc.cluster.local
+    credentials: root:vkGniYS3qL
+    port: 27017
+  elasticsearch:
+    server: elasticsearch-master.nx-shared-storage.svc.cluster.local
+    protocol: http
+    port: 9200
+  kafka:
+    server: nuxeo-kafka.nx-shared-storage.svc.cluster.local
+    port: 9092
 tags:
   mongodb: true
   kafka: true

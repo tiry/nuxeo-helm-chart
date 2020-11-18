@@ -16,7 +16,7 @@ data:
     nuxeo.stream.pubsub.log.codec=avro
 {{- if or .Values.mongodb.deploy .Values.tags.mongodb }}
     nuxeo.templates=default,mongodb
-    nuxeo.mongodb.server={{ .Values.nuxeo.mongodb.server }}
+    nuxeo.mongodb.server=mongodb://{{ .Values.nuxeo.mongodb.credentials }}@{{ .Values.nuxeo.mongodb.server }}:{{ .Values.nuxeo.mongodb.port }}
     nuxeo.mongodb.dbname={{ .Values.nuxeo.prefix }}
 {{- end }}
 {{- if or .Values.postgresql.deploy .Values.tags.postgresql }}
@@ -30,7 +30,7 @@ data:
 {{- if or .Values.elasticsearch.deploy .Values.tags.elasticsearch }}
     elasticsearch.client=RestClient
     elasticsearch.clusterName={{ .Values.nuxeo.elasticsearch.clusterName }}
-    elasticsearch.addressList=http://elasticsearch-master.nx-shared-storage.svc.cluster.local:9200
+    elasticsearch.addressList={{ .Values.nuxeo.elasticsearch.protocol }}://{{ .Values.nuxeo.elasticsearch.server }}:{{ .Values.nuxeo.elasticsearch.port }}
     elasticsearch.indexName={{ .Values.nuxeo.prefix }}
     elasticsearch.indexNumberOfReplicas={{ .Values.nuxeo.elasticsearch.indexNumberOfReplicas }}
     elasticsearch.restClient.socketTimeoutMs={{ .Values.nuxeo.elasticsearch.restClient.socketTimeoutMs }}
@@ -38,7 +38,7 @@ data:
 {{- end }}
 {{- if or .Values.kafka.deploy .Values.tags.kafka}}
     kafka.enabled=true
-    kafka.bootstrap.servers={{ .Release.Name }}-kafka-headless.nx-shared-storage.svc.cluster.local:9092
+    kafka.bootstrap.servers={{ .Values.nuxeo.kafka.server }}:{{ .Values.nuxeo.kafka.port }}
     nuxeo.stream.work.enabled=true
     nuxeo.pubsub.provider=stream
     kafka.topicPrefix={{ .Values.nuxeo.prefix }}-

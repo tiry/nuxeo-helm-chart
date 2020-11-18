@@ -89,12 +89,12 @@ spec:
 {{- if or .Values.elasticsearch.deploy .Values.tags.elasticsearch }}
       - name: init-elasticsearch
         image: busybox
-        command: ['sh', '-c', 'until nc -w1 elasticsearch-master.nx-shared-storage.svc.cluster.local 9200; do echo "waiting for elastic"; sleep 2; done;']
+        command: ['sh', '-c', 'until nc -w1 {{ .Values.nuxeo.elasticsearch.server }} {{ .Values.nuxeo.elasticsearch.port }}; do echo "waiting for elastic"; sleep 2; done;']
 {{- end }}
 {{- if or .Values.mongodb.deploy .Values.tags.mongodb }}
       - name: init-mongodb
         image: busybox
-        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-mongodb.nx-shared-storage.svc.cluster.local 27017; do echo "waiting for mongodb"; sleep 2; done;']
+        command: ['sh', '-c', 'until nc -w1 {{ .Values.nuxeo.mongodb.server }} {{ .Values.nuxeo.mongodb.port }}; do echo "waiting for mongodb"; sleep 2; done;']
 {{- end }}
 {{- if or .Values.postgresql.deploy .Values.tags.postgresql }}
       - name: init-postgresql
@@ -104,7 +104,7 @@ spec:
 {{- if or .Values.kafka.deploy .Values.tags.kafka}}
       - name: init-kafka
         image: busybox
-        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-kafka.nx-shared-storage.svc.cluster.local 9092; do echo "waiting for kafka"; sleep 2; done;']
+        command: ['sh', '-c', 'until nc -w1 {{ .Values.nuxeo.kafka.server }} {{ .Values.nuxeo.kafka.port }}; do echo "waiting for kafka"; sleep 2; done;']
 {{- end }}
       securityContext:
         fsGroup: 1000
