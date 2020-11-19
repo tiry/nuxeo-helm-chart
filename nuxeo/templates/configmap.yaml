@@ -69,6 +69,15 @@ data:
     nuxeo.gcp.project={{ .Values.gcs.project }}
     nuxeo.gcp.credentials=/opt/nuxeo/gcp/gcp-credentials.json
 {{- end }}
-    repository.clustering.enabled=true     
+    repository.clustering.enabled=true
+{{- if eq $nxNodeType "api" }}
+    // disable workers and stream processing
+    nuxeo.stream.processing.enabled=false
+    nuxeo.work.processing.enabled=false
+{{- else }}
+    // Enable workers and stream processing}
+    nuxeo.stream.processing.enabled=true
+    nuxeo.work.processing.enabled=true
+{{- end }}
 {{- end }}
 {{- end }}
