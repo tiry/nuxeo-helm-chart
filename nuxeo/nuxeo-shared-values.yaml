@@ -10,6 +10,7 @@ nuxeo:
     annotations:
       nginx.ingress.kubernetes.io/affinity: cookie
       nginx.ingress.kubernetes.io/affinity-mode: persistent
+      nginx.ingress.kubernetes.io/proxy-body-size: 100m
   replicaCount: 2
   workerCount: 1
   mongodb:
