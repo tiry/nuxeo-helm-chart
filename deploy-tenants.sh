@@ -7,7 +7,7 @@ helm3 upgrade -i nuxeo \
 	 -f nuxeo/nuxeo-shared-values.yaml \
 	 -f nuxeo/tenant1-values.yaml \
 	 --debug \
-	 --set nuxeo.clid=${NXCLID} \
+	 --set clid=${NXCLID} \
 	  nuxeo
 
 echo "Deploy tenant2"
@@ -17,5 +17,6 @@ helm3 upgrade -i nuxeo \
 	 -f nuxeo/nuxeo-shared-values.yaml \
 	 -f nuxeo/tenant2-values.yaml \
 	 --debug \
-	 --set nuxeo.clid=${NXCLID} \
+	 --set clid=${NXCLID} \
 	  nuxeo
+

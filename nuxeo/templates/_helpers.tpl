@@ -18,3 +18,18 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Return the list of nodes types depending on architecture.
+*/}}
+{{- define "nuxeo.nodeTypes" -}}
+{{- if eq .Values.architecture "singleNode" -}}
+    single
+{{- end -}}
+{{- if eq .Values.architecture "api-worker" -}}
+    api,worker
+{{- end -}}
+{{- end -}}
+
+
+

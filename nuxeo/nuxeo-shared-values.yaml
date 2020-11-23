@@ -1,34 +1,33 @@
-nuxeo:
-  packages: nuxeo-web-ui google-storage
-  prefix: nuxeo
-  enable: true
-  image:
-    repository: gcr.io/jx-preprod/nuxeo-tiry
-  enable: true
-  ingress:
-    enabled: true
-    annotations:
-      nginx.ingress.kubernetes.io/affinity: cookie
-      nginx.ingress.kubernetes.io/affinity-mode: persistent
-      nginx.ingress.kubernetes.io/proxy-body-size: 100m
-  replicaCount: 2
-  workerCount: 1
-  mongodb:
-    server: nuxeo-mongodb.nx-shared-storage.svc.cluster.local
-    credentials: root:vkGniYS3qL
-    port: 27017
-  elasticsearch:
-    server: elasticsearch-master.nx-shared-storage.svc.cluster.local
-    protocol: http
-    port: 9200
-  kafka:
-    server: nuxeo-kafka.nx-shared-storage.svc.cluster.local
-    port: 9092
-tags:
-  mongodb: true
-  kafka: true
-  elasticsearch: true
-  gcs: true
-gcs:
+packages: nuxeo-web-ui google-storage
+prefix: nuxeo
+enable: true
+image:
+  repository: gcr.io/jx-preprod/nuxeo-tiry
+enable: true
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/affinity-mode: persistent
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+replicaCount: 2
+workerCount: 1
+architecture: singleNode
+mongodb:
+  enabled: true
+  server: nuxeo-mongodb.nx-shared-storage.svc.cluster.local
+  credentials: root:vkGniYS3qL
+  port: 27017
+elasticsearch:
+  enabled: true
+  server: elasticsearch-master.nx-shared-storage.svc.cluster.local
+  protocol: http
+  port: 9200
+kafka:
+  enabled: true
+  server: nuxeo-kafka.nx-shared-storage.svc.cluster.local
+  port: 9092
+googleCloudStorage:
+  enabled: true
   project: "jx-preprod"
-  bucketname: "nuxeo-multitenant-storage-bucket"  
+  bucketname: "nuxeo-multitenant-storage-bucket"

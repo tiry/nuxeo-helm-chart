@@ -1,3 +1,2 @@
-nuxeo:
-  prefix: company-a
 nameOverride: company-a
+architecture: api-worker

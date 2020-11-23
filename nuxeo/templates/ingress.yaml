@@ -1,4 +1,4 @@
-{{- if and .Values.nuxeo.enable .Values.nuxeo.ingress.enabled -}}
+{{- if and .Values.enable .Values.ingress.enabled -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -8,19 +8,19 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-{{- with .Values.nuxeo.ingress.labels }}
+{{- with .Values.ingress.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
   annotations:
-    {{- range $key, $value := .Values.nuxeo.ingress.annotations }}
+    {{- range $key, $value := .Values.ingress.annotations }}
       {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
   rules:
-  - host: {{ .Values.nuxeo.prefix }}.nxtest
+  - host: {{ template "nuxeo.name" . }}.nxtest
     http:
       paths:
       - backend:
           serviceName: {{ template "nuxeo.fullname" . }}
-          servicePort: {{ .Values.nuxeo.service.externalPort}}
+          servicePort: {{ .Values.service.externalPort}}
 {{- end -}}

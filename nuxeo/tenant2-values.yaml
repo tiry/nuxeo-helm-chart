@@ -1,3 +1,1 @@
-nuxeo:
-  prefix: company-b
 nameOverride: company-b
