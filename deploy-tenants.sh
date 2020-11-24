@@ -8,6 +8,7 @@ helm3 upgrade -i nuxeo \
 	 -f nuxeo/tenant1-values.yaml \
 	 --debug \
 	 --set clid=${NXCLID} \
+     --set gcpb64=${NXGCPB64} \
 	  nuxeo
 
 echo "Deploy tenant2"
@@ -18,5 +19,6 @@ helm3 upgrade -i nuxeo \
 	 -f nuxeo/tenant2-values.yaml \
 	 --debug \
 	 --set clid=${NXCLID} \
+     --set gcpb64=${NXGCPB64} \
 	  nuxeo
 

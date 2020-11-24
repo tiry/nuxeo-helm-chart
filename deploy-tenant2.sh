@@ -8,4 +8,5 @@ helm3 upgrade -i nuxeo \
 	 -f nuxeo/tenant2-values.yaml \
 	 --debug \
 	 --set clid=${NXCLID} \
+     --set gcpb64=${NXGCPB64} \
 	  nuxeo

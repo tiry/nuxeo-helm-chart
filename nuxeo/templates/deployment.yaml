@@ -95,7 +95,7 @@ spec:
         volumeMounts:
           - name: nuxeoconf
             mountPath: /etc/nuxeo/conf.d/
-{{- if (not .Values.googleCloudStorage.enabled)}}
+{{- if not (include "nuxeo.cloudProvider.enabled" .) }}
           - name: binaries
             mountPath: /var/lib/nuxeo/binaries
 {{- end }}
@@ -130,7 +130,7 @@ spec:
       - name: nuxeoconf
         configMap:
           name: {{ template "nuxeo.fullname" . }}-conf-{{ $nxNodeType }}
-        {{- if (not .Values.googleCloudStorage.enabled)}}
+        {{- if not (include "nuxeo.cloudProvider.enabled" .) }}
       - name: binaries
         emptyDir: {}
         {{- end }}

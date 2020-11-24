@@ -68,6 +68,8 @@ data:
     nuxeo.gcp.storage.bucket_prefix={{ template "nuxeo.name" . }}
     nuxeo.gcp.project={{ .Values.googleCloudStorage.project }}
     nuxeo.gcp.credentials=/opt/nuxeo/gcp/gcp-credentials.json
+    metrics.stackdriver.enabled=true
+    metrics.stackdriver.gcpProjectId={{ .Values.googleCloudStorage.project }}
 {{- end }}
     repository.clustering.enabled=true
     repository.clustering.id={{ uuidv4 }} (
