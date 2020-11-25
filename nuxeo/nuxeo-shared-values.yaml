@@ -1,8 +1,7 @@
-packages: nuxeo-web-ui google-storage
-prefix: nuxeo
+packages: 
 enable: true
 image:
-  repository: gcr.io/jx-preprod/nuxeo-tiry
+  repository: gcr.io/jx-preprod/nuxeo-mt
 enable: true
 ingress:
   enabled: true
@@ -16,7 +15,7 @@ architecture: singleNode
 mongodb:
   enabled: true
   server: nuxeo-mongodb.nx-shared-storage.svc.cluster.local
-  credentials: root:vkGniYS3qL
+  credentials: root:I1hQnMDKQH
   port: 27017
 elasticsearch:
   enabled: true

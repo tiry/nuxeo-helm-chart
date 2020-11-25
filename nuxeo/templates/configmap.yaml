@@ -72,7 +72,8 @@ data:
     metrics.stackdriver.gcpProjectId={{ .Values.googleCloudStorage.project }}
 {{- end }}
     repository.clustering.enabled=true
-    repository.clustering.id={{ uuidv4 }} (
+    repository.clustering.id={{ uuidv4 }}
+    nuxeo.tenantId={{ template "nuxeo.name" . }}
 {{- if eq $nxNodeType "api" }}
     // disable workers and stream processing
     nuxeo.stream.processing.enabled=false

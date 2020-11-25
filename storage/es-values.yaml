@@ -1,7 +1,7 @@
 ## Values taken from the Elasticsearch chart: https://github.com/helm/charts/blob/master/stable/elasticsearch/values.yaml
 elasticsearch:
   image:
-    tag: "6.8.6"
+    tag: "7.9.2"
   cluster:
     env:
       MINIMUM_MASTER_NODES: "2"
