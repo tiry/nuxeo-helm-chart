@@ -103,6 +103,8 @@ spec:
             mountPath: /var/log/nuxeo
           - name: gcpcconfig
             mountPath: /opt/nuxeo/gcp
+          - name: podinfo
+            mountPath: /etc/podinfo
       initContainers:
 {{- if or .Values.elasticsearch.deploy .Values.elasticsearch.enabled }}
       - name: init-elasticsearch
@@ -127,6 +129,24 @@ spec:
       securityContext:
         fsGroup: 1000
       volumes:
+      - name: podinfo
+        downwardAPI:
+          items:
+            - path: "namespace"
+              fieldRef:
+                fieldPath: metadata.namespace
+            - path: "podname"
+              fieldRef:
+                fieldPath: metadata.name
+            - path: "poduid"
+              fieldRef:
+                fieldPath: metadata.uid
+            - path: "labels"
+              fieldRef:
+                fieldPath: metadata.labels
+            - path: "annotations"
+              fieldRef:
+                fieldPath: metadata.annotations
       - name: nuxeoconf
         configMap:
           name: {{ template "nuxeo.fullname" . }}-conf-{{ $nxNodeType }}

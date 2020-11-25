@@ -70,6 +70,7 @@ data:
     nuxeo.gcp.credentials=/opt/nuxeo/gcp/gcp-credentials.json
     metrics.stackdriver.enabled=true
     metrics.stackdriver.gcpProjectId={{ .Values.googleCloudStorage.project }}
+    metrics.enabled=true
 {{- end }}
     repository.clustering.enabled=true
     repository.clustering.id={{ uuidv4 }}
