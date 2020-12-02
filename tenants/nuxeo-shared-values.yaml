@@ -15,7 +15,7 @@ architecture: singleNode
 mongodb:
   enabled: true
   server: nuxeo-mongodb.nx-shared-storage.svc.cluster.local
-  credentials: root:I1hQnMDKQH
+  credentials: root:b04bjc0Xnr
   port: 27017
 elasticsearch:
   enabled: true
