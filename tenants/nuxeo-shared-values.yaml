@@ -12,21 +12,27 @@ ingress:
 replicaCount: 2
 workerCount: 1
 architecture: singleNode
+metrics:
+  enabled: true
+  stackdriver:
+    enabled: false
 mongodb:
   enabled: true
-  server: nuxeo-mongodb.nx-shared-storage.svc.cluster.local
+  host: nuxeo-mongodb.nx-shared-storage.svc.cluster.local
   credentials: root:b04bjc0Xnr
+  protocol: mongodb
   port: 27017
 elasticsearch:
   enabled: true
-  server: elasticsearch-master.nx-shared-storage.svc.cluster.local
+  host: elasticsearch-master.nx-shared-storage.svc.cluster.local
   protocol: http
   port: 9200
 kafka:
   enabled: true
-  server: nuxeo-kafka.nx-shared-storage.svc.cluster.local
+  host: nuxeo-kafka.nx-shared-storage.svc.cluster.local
   port: 9092
 googleCloudStorage:
   enabled: true
   project: "jx-preprod"
-  bucketname: "nuxeo-multitenant-storage-bucket"
+  credentials: /opt/nuxeo/gcp/gcp-credentials.json
+  bucket: "nuxeo-multitenant-storage-bucket"

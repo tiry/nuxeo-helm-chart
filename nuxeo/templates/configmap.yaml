@@ -1,3 +1,4 @@
+{{- $credentials := ternary "" (printf "%s%s" .Values.mongodb.credentials "@") (empty .Values.mongodb.credentials) -}}
 {{- range splitList "," (include "nuxeo.nodeTypes" .) }}
 {{- $nxNodeType := . -}}
 {{- with $ }}
@@ -15,65 +16,78 @@ metadata:
 data:
   nuxeo.conf: |-
     # Additional nuxeo.conf parameters
+    nuxeo.virtual.host={{ .Values.virtualHost  }}
     nuxeo.stream.work.log.codec=avro
     nuxeo.stream.audit.log.codec=avro
     nuxeo.stream.pubsub.log.codec=avro
-{{- if or .Values.mongodb.deploy .Values.mongodb.enabled }}
+{{- if .Values.mongodb.enabled }}
     nuxeo.templates=default,mongodb
-    nuxeo.mongodb.server=mongodb://{{ .Values.mongodb.credentials }}@{{ .Values.mongodb.server }}:{{ .Values.mongodb.port }}
+    nuxeo.mongodb.server={{ .Values.mongodb.protocol }}://{{ $credentials }}{{ required "mongodb.host is required" .Values.mongodb.host }}:{{ .Values.mongodb.port }}
     nuxeo.mongodb.dbname={{ template "nuxeo.name" . }}
 {{- end }}
-{{- if or .Values.postgresql.deploy .Values.postgresql.enabled }}
+{{- if .Values.postgresql.enabled }}
     nuxeo.templates=default,postgresql
-    nuxeo.db.name={{ .Values.postgresql.dbname }}
+    nuxeo.db.host={{ required "postgresql.host is required" .Values.postgresql.host }}
+    nuxeo.db.port={{ .Values.postgresql.port }}
+    nuxeo.db.name={{ template "nuxeo.fullname" . }}
     nuxeo.db.user={{ .Values.postgresql.username }}
     nuxeo.db.password={{ .Values.postgresql.password }}
-    nuxeo.db.host={{ .Release.Name }}-postgresql
-    nuxeo.db.port=5432
 {{- end }}
-{{- if or .Values.elasticsearch.deploy .Values.elasticsearch.enabled }}
-    elasticsearch.client=RestClient
+{{- if .Values.elasticsearch.enabled }}
+    elasticsearch.addressList={{ .Values.elasticsearch.protocol }}://{{ required "elasticsearch.host is required" .Values.elasticsearch.host }}:{{ .Values.elasticsearch.port }}
     elasticsearch.clusterName={{ .Values.elasticsearch.clusterName }}
-    elasticsearch.addressList={{ .Values.elasticsearch.protocol }}://{{ .Values.elasticsearch.server }}:{{ .Values.elasticsearch.port }}
     elasticsearch.indexName={{ template "nuxeo.name" . }}
     elasticsearch.indexNumberOfReplicas={{ .Values.elasticsearch.indexNumberOfReplicas }}
     elasticsearch.restClient.socketTimeoutMs={{ .Values.elasticsearch.restClient.socketTimeoutMs }}
     elasticsearch.restClient.connectionTimeoutMs={{ .Values.elasticsearch.restClient.connectionTimeoutMs }}
 {{- end }}
-{{- if or .Values.kafka.deploy .Values.kafka.enabled}}
+{{- if .Values.kafka.enabled}}
     kafka.enabled=true
-    kafka.bootstrap.servers={{ .Values.kafka.server }}:{{ .Values.kafka.port }}
+     kafka.bootstrap.servers={{ required "kafka.host is required" .Values.kafka.host }}:{{ .Values.kafka.port }}
+    kafka.topicPrefix={{ template "nuxeo.name" . }}
     nuxeo.stream.work.enabled=true
     nuxeo.pubsub.provider=stream
-    kafka.topicPrefix={{ template "nuxeo.name" . }}-
 {{- end }}
-{{- if or .Values.redis.deploy .Values.redis.enabled }}
-{{- if or .Values.mongodb.deploy .Values.mongodb.enabled }}
+{{- if .Values.redis.enabled }}
+{{- if .Values.mongodb.enabled }}
     nuxeo.templates=default,mongodb,redis
-{{- else if or  .Values.postgresql.deploy  .Values.postgresql.enabled }}
+{{- else if .Values.postgresql.enabled }}
     nuxeo.templates=default,postgresql,redis
 {{- else }}
     nuxeo.templates=default,redis
 {{- end }}
-    nuxeo.redis.host={{ .Release.Name }}-redis-master
+    nuxeo.redis.host={{ .Values.redis.host }}
     nuxeo.work.queuing=redis
     nuxeo.redis.enabled=true
 {{- end }}
-{{- if .Values.customParams }}
-{{ .Values.customParams | indent 4 }}
-{{- end }}
 {{- if .Values.googleCloudStorage.enabled }}
     nuxeo.core.binarymanager=org.nuxeo.ecm.core.storage.gcp.GoogleStorageBinaryManager
-    nuxeo.gcp.storage.bucket= {{ .Values.googleCloudStorage.bucketname }}
-    nuxeo.gcp.storage.bucket_prefix={{ template "nuxeo.name" . }}
     nuxeo.gcp.project={{ .Values.googleCloudStorage.project }}
-    nuxeo.gcp.credentials=/opt/nuxeo/gcp/gcp-credentials.json
-    metrics.stackdriver.enabled=false
+    nuxeo.gcp.credentials={{ .Values.googleCloudStorage.credentials }}
+    nuxeo.gcp.storage.bucket= {{ .Values.googleCloudStorage.bucket }}
+    {{- if .Values.googleCloudStorage.bucketPrefix }}
+    nuxeo.gcp.storage.bucket_prefix={{ .Values.googleCloudStorage.bucketPrefix }}
+    {{- else }}
+    nuxeo.gcp.storage.bucket_prefix={{ template "nuxeo.name" . }}/
+    {{- end }}
+    metrics.stackdriver.enabled={{ .Values.metrics.stackdriver.enabled }}
     metrics.stackdriver.gcpProjectId={{ .Values.googleCloudStorage.project }}
-    metrics.enabled=true
+{{- end }}
+{{- if .Values.amazonS3.enabled }}
+    nuxeo.core.binarymanager=org.nuxeo.ecm.core.storage.sql.S3BinaryManager
+    nuxeo.aws.accessKeyId={{ .Values.amazonS3.accessKeyId }}
+    nuxeo.aws.secretKey={{ .Values.amazonS3.secretAccessKey }}
+    nuxeo.aws.region={{ .Values.amazonS3.region }}
+    nuxeo.s3storage.bucket= {{ .Values.amazonS3.bucket }}
+    {{- if .Values.amazonS3.bucketPrefix }}
+    nuxeo.s3storage.bucket_prefix={{ .Values.amazonS3.bucketPrefix }}
+    {{- else }}
+    nuxeo.s3storage.bucket_prefix={{ template "nuxeo.fullname" . }}/
+    {{- end }}
 {{- end }}
     repository.clustering.enabled=true
     repository.clustering.id={{ uuidv4 }}
+    metrics.enabled={{ .Values.metrics.enabled }}
     nuxeo.tenantId={{ template "nuxeo.name" . }}
 {{- if eq $nxNodeType "api" }}
     // disable workers and stream processing
@@ -83,6 +97,9 @@ data:
     // Enable workers and stream processing
     nuxeo.stream.processing.enabled=true
     nuxeo.work.processing.enabled=true
+{{- end }}
+{{- if .Values.customParams }}
+{{ .Values.customParams | indent 4 }}
 {{- end }}
 {{- end }}
 {{- end }}

@@ -1,2 +1,3 @@
 nameOverride: company-a
 architecture: api-worker
+ingress.hostname: company-a.nxmt
