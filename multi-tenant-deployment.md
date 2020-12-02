@@ -61,7 +61,7 @@ Use the provided shell script:
 
 This shell script is simply executing `helm install` on the helm chart for the storage service providers.
 
-    helm3 upgrade -i  nuxeo-es  elasticsearch --repo https://helm.elastic.co  --version 6.8.13 -n nx-shared-storage    --create-namespace  -f storage/es-values.yaml 
+    helm3 upgrade -i  nuxeo-es  elasticsearch --repo https://helm.elastic.co  --version 7.9.2 -n   nx-shared-storage  --create-namespace  -f storage/es-values.yaml 
 
 Because we use Helm3, we can set the target namespace.
 
@@ -75,11 +75,25 @@ We are simply calling Helm install in a dedciated namespace:
 
     helm3 upgrade -i nuxeo \
      -n tenant1 --create-namespace \
-	 -f nuxeo/nuxeo-shared-values.yaml \
-	 -f nuxeo/tenant1-values.yaml \
+	 -f tenants/nuxeo-shared-values.yaml \
+	 -f tenants/tenant1-values.yaml \
 	 --debug \
-	 --set nuxeo.clid=${NXCLID} \
+	 --set clid=${NXCLID} \
+     --set gcpb64=${NXGCPB64} \
 	  nuxeo
+
+The tenant specific configuration is located in tenants/tenant1-values.yaml
+
+    nameOverride: company-a
+    architecture: api-worker
+    ingress.hostname: company-a.nxmt
+
+The architecture choice is currently between:
+
+ - singleNode: only one type of Nuxeo node is deployed
+ - api-worker: deploys 2 types of pods
+    - api nodes : exposed via the ingress but not processing any async work
+    - worker nodes: not exposed via the ingress and dedicated to async processing
 
 ## Testing the cluster
 
@@ -87,8 +101,8 @@ We are simply calling Helm install in a dedciated namespace:
 
 There are 2 deployed nuxeo:
 
- - company-a.localhost/nuxeo
- - company-a.localhost/nuxeo
+ - company-a.nxmt/nuxeo
+ - company-b.nxmt/nuxeo
  
 ### Checking ES indices
 
@@ -110,7 +124,6 @@ Then from within the shell in Nuxeo:
 
 	wget -O  - http://elasticsearch-master.nx-shared-storage.svc.cluster.local:9200/_cat/indices
     
-
 ### Checking Mongo Databases
 
     get pods -n nx-shared-storage | grep mongodb
