@@ -1,3 +1,3 @@
 #/bin/bash
 
-./deploy-script.sh tenant1
+./deploy-script.sh tenant2
