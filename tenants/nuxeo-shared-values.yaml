@@ -11,11 +11,10 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-body-size: 100m
 replicaCount: 2
 workerCount: 1
-architecture: singleNode
 metrics:
   enabled: true
   stackdriver:
-    enabled: true
+    enabled: false
 mongodb:
   enabled: true
   host: nuxeo-mongodb.nx-shared-storage.svc.cluster.local

@@ -98,6 +98,8 @@ data:
     nuxeo.stream.processing.enabled=true
     nuxeo.work.processing.enabled=true
 {{- end }}
+{{- end }}
+{{- end }}
 {{- range $key, $val := .Values.customProperties }}
 {{- with $ }}
 ---
@@ -115,7 +117,5 @@ data:
   nuxeo-{{ $key }}.conf: |
     # Helm chart properties: {{ $key }}
 {{ $val | indent 4 }}
-{{- end }}
-{{- end }}
 {{- end }}
 {{- end }}
