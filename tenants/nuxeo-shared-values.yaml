@@ -15,7 +15,7 @@ architecture: singleNode
 metrics:
   enabled: true
   stackdriver:
-    enabled: false
+    enabled: true
 mongodb:
   enabled: true
   host: nuxeo-mongodb.nx-shared-storage.svc.cluster.local

@@ -1,2 +1,3 @@
 nameOverride: company-b
-ingress.hostname: company-b.nxmt
+ingress:
+  hostname: company-b.nxmt
