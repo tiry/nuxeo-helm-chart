@@ -32,14 +32,12 @@ spec:
 {{- with .Values.podLabels }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-{{- if .Values.podAnnotations }}
-      annotations:
-{{ toYaml .Values.podAnnotations | indent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations: {{ toYaml . | nindent 8 }}
 {{- end }}
     spec:
-{{- if .Values.image.pullSecrets }}
-      imagePullSecrets:
-      - name: {{ .Values.image.pullSecrets }}
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets: {{ toYaml . | nindent 6}}
 {{- end }}
       containers:
       - name: {{ .Chart.Name }}
@@ -86,8 +84,10 @@ spec:
               name: {{ template "nuxeo.fullname" . }}-instance-clid
               key: CLID
 {{- end }}
+{{- if .Values.packages }}
         - name: NUXEO_PACKAGES
           value: {{ .Values.packages }}
+{{- end }}          
 {{- if .Values.customEnvs }}
 {{ toYaml .Values.customEnvs | indent 8 }}
 {{- end }}
@@ -97,7 +97,15 @@ spec:
 {{- end }}
         volumeMounts:
           - name: nuxeoconf
-            mountPath: /etc/nuxeo/conf.d/
+            mountPath: /etc/nuxeo/conf.d/00-nuxeo.conf
+            subPath: 00-nuxeo.conf
+          {{- range $key, $val := .Values.customProperties }}
+          {{- with $ }}
+          - name: nuxeoconf-{{ $key }}
+            mountPath: /etc/nuxeo/conf.d/nuxeo-{{ $key }}.conf
+            subPath: nuxeo-{{ $key }}.conf
+          {{- end }}
+          {{- end }}
           - name: log
             mountPath: /var/log/nuxeo
 {{- if not (include "nuxeo.cloudProvider.enabled" .) }}
@@ -156,6 +164,13 @@ spec:
       - name: nuxeoconf
         configMap:
           name: {{ template "nuxeo.fullname" . }}-conf-{{ $nxNodeType }}
+      {{- range $key, $val := .Values.customProperties }}
+      {{- with $ }}
+      - name: nuxeoconf-{{ $key }}
+        configMap:
+          name: {{ template "nuxeo.fullname" . }}-conf-{{ $key }}
+      {{- end }}
+      {{- end }}
       - name: log
         {{- if .Values.logs.persistence.enabled }}
         persistentVolumeClaim:
