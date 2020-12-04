@@ -14,7 +14,7 @@ metadata:
     heritage: "{{ .Release.Service }}"
     role: config
 data:
-  nuxeo.conf: |-
+  00-nuxeo.conf: |
     # Additional nuxeo.conf parameters
     nuxeo.virtual.host={{ .Values.virtualHost  }}
     nuxeo.stream.work.log.codec=avro
