@@ -1,5 +1,6 @@
 packages: 
 enable: true
+architecture: singleNode
 image:
   repository: gcr.io/jx-preprod/nuxeo-mt
 enable: true
@@ -18,7 +19,7 @@ metrics:
 mongodb:
   enabled: true
   host: nuxeo-mongodb.nx-shared-storage.svc.cluster.local
-  credentials: root:b04bjc0Xnr
+  credentials: root:0Yma5vKBuY
   protocol: mongodb
   port: 27017
 elasticsearch:
