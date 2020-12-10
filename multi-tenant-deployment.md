@@ -10,13 +10,6 @@
 	  --selector=app.kubernetes.io/component=controller \
 	  --timeout=90s
 
-## Install Helm
-
-XXX install Helm 3
-
-//    kubectl create -f rbac-config.yaml
-//    helm init --service-account tiller --history-max 200
-
 # Deploy nuxeo Cluster
 
 ## Principles used to deploy multiple nuxeo application
@@ -64,6 +57,26 @@ This shell script is simply executing `helm install` on the helm chart for the s
     helm3 upgrade -i  nuxeo-es  elasticsearch --repo https://helm.elastic.co  --version 7.9.2 -n   nx-shared-storage  --create-namespace  -f storage/es-values.yaml 
 
 Because we use Helm3, we can set the target namespace.
+
+The deploy-storage.sh supports 2 variant:
+
+    ./deploy-storage.sh
+
+Will deploy a "dev" minimal storage layer.
+
+    ./deploy-storage.sh PROD
+
+Will deploy a more production grade storage layer:
+
+ - Elasticsearch
+    - 3 master nodes
+    - 3 data nodes
+ - MongoDB
+    - 2 repocaset nodes
+    - 1 arbitrer node
+ - Kafka
+    - 3 brokers
+    - 3 zookeepers
 
 ### Deploy a tenant
 
