@@ -1,20 +1,8 @@
+# https://github.com/bitnami/charts/blob/master/bitnami/mongodb/values.yaml
+
+architecture: replicaset
+useStatefulSet: true
+
 mongodb:
-  replicaSet:
-    enabled: true
-  image:
-    tag: "4.2.7"    
-  usePassword: false
-  auth:
-    enabled: false
   architecture: replicaset
-  serviceAccount:
-    create: false    
-  persistence:
-    enabled: true
-  resources:
-    requests:
-      cpu: 1
-      memory: 1Gi
-    limits:
-      cpu: 2
-      memory: 2Gi    
+  useStatefulSet: true
