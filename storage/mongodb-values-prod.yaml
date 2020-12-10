@@ -1,3 +1,8 @@
 # https://github.com/bitnami/charts/blob/master/bitnami/mongodb/values.yaml
 
+architecture: replicaset
 useStatefulSet: true
+
+mongodb:
+  architecture: replicaset
+  useStatefulSet: true

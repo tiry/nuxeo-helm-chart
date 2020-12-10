@@ -18,8 +18,8 @@ metrics:
     enabled: false
 mongodb:
   enabled: true
-  host: nuxeo-mongodb.nx-shared-storage.svc.cluster.local
-  credentials: root:0Yma5vKBuY
+  host: nuxeo-mongodb-headless.nx-shared-storage.svc.cluster.local
+  credentials: root:TEwlJu2W1Z
   protocol: mongodb
   port: 27017
 elasticsearch:
