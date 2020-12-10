@@ -32,9 +32,13 @@ spec:
 {{- with .Values.podLabels }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-      {{- with .Values.podAnnotations }}
-      annotations: {{ toYaml . | nindent 8 }}
-{{- end }}
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        rollme: {{ ternary (randAlphaNum 5 | quote) .Values.image.tag (or (eq "latest" (lower .Values.image.tag)) (hasSuffix "snapshot" (lower .Values.image.tag))) }}
+        {{- if .Values.podAnnotations }}
+        {{ toYaml .Values.podAnnotations | indent 8 }}
+        {{- end }}
     spec:
       {{- with .Values.image.pullSecrets }}
       imagePullSecrets: {{ toYaml . | nindent 6}}
@@ -50,7 +54,7 @@ spec:
             cpu: "{{ .Values.resources.limits.cpu }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
 {{- if .Values.image.pullPolicy }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        imagePullPolicy: {{ ternary ("Always") (.Values.image.pullPolicy) (or (eq "latest" (lower .Values.image.tag)) (hasSuffix "snapshot" (lower .Values.image.tag))) }}
 {{- end }}
         ports:
         - containerPort: {{ .Values.service.internalPort }}
@@ -87,7 +91,7 @@ spec:
 {{- if .Values.packages }}
         - name: NUXEO_PACKAGES
           value: {{ .Values.packages }}
-{{- end }}          
+{{- end }}
 {{- if .Values.customEnvs }}
 {{ toYaml .Values.customEnvs | indent 8 }}
 {{- end }}
