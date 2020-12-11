@@ -22,7 +22,11 @@ data:
     nuxeo.stream.pubsub.log.codec=avro
 {{- if .Values.mongodb.enabled }}
     nuxeo.templates=default,mongodb
+{{- if .Values.mongodb.url }}    
+    nuxeo.mongodb.server={{ .Values.mongodb.protocol }}://{{ $credentials }}{{ .Values.mongodb.url }}
+{{- else}}
     nuxeo.mongodb.server={{ .Values.mongodb.protocol }}://{{ $credentials }}{{ required "mongodb.host is required" .Values.mongodb.host }}:{{ .Values.mongodb.port }}
+{{- end }}
     nuxeo.mongodb.dbname={{ template "nuxeo.name" . }}
 {{- end }}
 {{- if .Values.postgresql.enabled }}

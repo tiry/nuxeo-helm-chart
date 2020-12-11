@@ -5,3 +5,6 @@ ingress:
 customProperties:
   tenant: |
     nuxeo.tenantId=company-a
+    # k8s_pod vs k8s_container vs default
+    nuxeo.stackdriver.forceResourceType=k8s_pod
+    metrics.streams.enabled=true

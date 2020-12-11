@@ -2,7 +2,15 @@
 
 architecture: replicaset
 useStatefulSet: true
-
-mongodb:
-  architecture: replicaset
-  useStatefulSet: true
+# avoid having an arbiter node
+replicaCount: 3
+arbiter:
+  enabled: false
+#externalAccess:
+#  enabled: true
+#  service:
+#    type: NodePort
+#    nodePorts: 
+#      - 30001
+#      - 30002
+#      - 30003
