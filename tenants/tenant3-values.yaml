@@ -1,0 +1,37 @@
+nameOverride: company-c
+architecture: api-worker
+ingress:
+  hostname: company-c.nxmt
+customProperties:
+  tenant: |
+    nuxeo.tenantId=company-c
+    # k8s_pod vs k8s_container vs default
+    nuxeo.stackdriver.forceResourceType=k8s_pod
+    metrics.streams.enabled=true  
+elasticsearch:
+  restClient:
+    socketTimeoutMs: 300000
+    connectionTimeoutMs: 300000
+  indexNumberOfReplicas: 0
+extraSecrets:
+  gcp-sa: |-
+    gcp-credentials.json: |-
+      {
+      "type": "service_account",
+      "project_id": "jx-preprod",
+      "private_key_id": "$NXGCPPKID",
+      "private_key": "$NXGCPPK",
+      "client_email": "multitenant-nuxeo-sa@jx-preprod.iam.gserviceaccount.com",
+      "client_id": "112311918825738957815",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/multitenant-nuxeo-sa%40jx-preprod.iam.gserviceaccount.com"
+      }
+extraVolumes:
+  - name: gcpcconfig
+    secret:
+      secretName: nuxeo-company-c-gcp-sa
+extraVolumeMounts:   
+  - mountPath: /opt/nuxeo/gcp
+    name: gcpcconfig

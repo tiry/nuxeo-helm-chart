@@ -28,6 +28,7 @@ elasticsearch:
   host: elasticsearch-master.nx-shared-storage.svc.cluster.local
   protocol: http
   port: 9200
+  clusterName: elasticsearch
 kafka:
   enabled: true
   host: nuxeo-kafka.nx-shared-storage.svc.cluster.local
