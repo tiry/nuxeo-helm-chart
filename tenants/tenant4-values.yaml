@@ -1,14 +1,17 @@
-nameOverride: company-c
+nameOverride: company-d
 architecture: api-worker
 ingress:
-  hostname: company-c.nxmt
+  hostname: company-d.nxmt
 customProperties:
   tenant: |
-    nuxeo.tenantId=company-c
+    nuxeo.tenantId=company-d
     # k8s_pod vs k8s_container vs default
     nuxeo.stackdriver.forceResourceType=k8s_pod
     metrics.streams.enabled=true  
 extraVolumes:
   - name: gcpcconfig
     secret:
-      secretName: nuxeo-company-c-gcp-sa
+      secretName: nuxeo-company-d-gcp-sa
+nodeSelector: 
+  cloud.google.com/gke-nodepool: dedicated-pool 
+

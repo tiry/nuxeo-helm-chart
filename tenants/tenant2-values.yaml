@@ -1,3 +1,13 @@
 nameOverride: company-b
 ingress:
   hostname: company-b.nxmt
+customProperties:
+  tenant: |
+    nuxeo.tenantId=company-b
+    # k8s_pod vs k8s_container vs default
+    nuxeo.stackdriver.forceResourceType=k8s_pod
+    metrics.streams.enabled=true
+extraVolumes:
+  - name: gcpcconfig
+    secret:
+      secretName: nuxeo-company-b-gcp-sa
