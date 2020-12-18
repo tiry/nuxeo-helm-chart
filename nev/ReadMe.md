@@ -13,6 +13,19 @@ For NEV, the target model is to:
     - i.e. here the default namespace is `nev-shared`
  - for each tenant/nuxeo cluster, a new arender-previewer pod is deployed in the target namespace
 
+### Deploying
+
+This is a WIP!
+
+Deploy ARender shared services (target namespace will be `nev-shared` )
+
+    nev/deploy-shared-services.sh
+
+Deploy ARender previewer in tenant/namespace "tenant4"
+
+    nev/init-secret.sh tenant4
+    nev/deploy-preview.sh tenant4    
+
 ### NEV resources
 
 #### Nuxeo documentation
@@ -39,4 +52,8 @@ https://connect.nuxeo.com/nuxeo/site/marketplace/package/nuxeo-arender?version=1
 #### Helm Chart
 
 https://packages.nuxeo.com/repository/helm-releases/arender-0.2.3.tgz
+
+Sample values: https://github.com/nuxeo/nuxeo-arender-connector/blob/master/ci/helm/nuxeo-arender/values_jx.yaml
+
+
 
