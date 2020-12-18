@@ -1,0 +1,11 @@
+web-ui:
+  enabled: true
+  environment:
+    - name: ARENDERSRV_NUXEO_CLIENT_TIMEOUT
+    value: "60"
+    - name: ARENDERSRV_NUXEO_SERVER_CONTEXT_PATH
+    value: /nuxeo
+    - name: ARENDERSRV_NUXEO_SERVER_ARENDER_SECRET
+    value: OAUTH2_SECRET
+    - name: ARENDERSRV_NUXEO_SERVER_URL
+    value: xxx.nxmt

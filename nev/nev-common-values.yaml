@@ -1,0 +1,31 @@
+global:
+  imagePullSecrets:
+    - name: arender-repo
+rendition:
+  enabled: false
+  broker:
+    image:  
+      repository: docker-arender.packages.nuxeo.com/arender-document-service-broker
+      tag: 4.0.9.NX1.0
+  converter:
+    image:
+      repository: docker-arender.packages.nuxeo.com/arender-document-converter
+      tag: 4.0.9.NX1.0
+  dfs:
+    image:
+      repository: docker-arender.packages.nuxeo.com/arender-document-file-storage
+      tag: 4.0.9.NX1.0
+  handler:
+    image:
+      repository: docker-arender.packages.nuxeo.com/arender-document-text-handler
+      tag: 4.0.9.NX1.0
+  renderer:
+    image:
+      repository: docker-arender.packages.nuxeo.com/arender-document-renderer
+      tag: 4.0.9.NX1.0
+web-ui:
+  enabled: false
+  image:
+    repository: docker-arender.packages.nuxeo.com/nuxeo/arender-previewer
+    tag: 11.0.0-RC1
+  
