@@ -1,6 +1,6 @@
 nameOverride: company-b
 ingress:
-  hostname: company-b.nxmt
+  hostname: company-b.multitenant.nuxeo.com
 customProperties:
   tenant: |
     nuxeo.tenantId=company-b

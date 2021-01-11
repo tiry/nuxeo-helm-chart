@@ -3,7 +3,7 @@ architecture: api-worker
 image:
   repository: gcr.io/jx-preprod/nuxeo-mt-arender
 ingress:
-  hostname: company-d.nxmt
+  hostname: company-d.multitenant.nuxeo.com
 customProperties:
   tenant: |
     nuxeo.tenantId=company-d

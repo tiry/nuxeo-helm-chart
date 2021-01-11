@@ -1,0 +1,17 @@
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nuxeo-company-a-worker
+  namespace: tenant1
+spec:
+  maxReplicas: 3
+  metrics:
+  - pods:
+      metricName: custom.googleapis.com|nuxeo|dropwizard5_nuxeo.works.global.queue.completed_gauge
+      targetAverageValue: "1"
+    type: Pods
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nuxeo-company-a-worker

@@ -1,7 +1,7 @@
 nameOverride: company-a
 architecture: api-worker
 ingress:
-  hostname: company-a.nxmt
+  hostname: company-a.multitenant.nuxeo.com
 customProperties:
   tenant: |
     nuxeo.tenantId=company-a
