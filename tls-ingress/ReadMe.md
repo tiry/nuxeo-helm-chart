@@ -37,6 +37,10 @@ Add the tls entry in the ingress descriptor:
       - company-a.multitenant.nuxeo.com
       secretName: company-a-tls
 
+## Cert-Issuers and namespaces
+
+The Cert-Issuer needs to be created either in the target "tenant" namespace or in the kube-system namespace.
+
 ## References: 
 
  https://cert-manager.io/docs/installation/kubernetes/

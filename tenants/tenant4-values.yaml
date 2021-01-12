@@ -4,6 +4,10 @@ image:
   repository: gcr.io/jx-preprod/nuxeo-mt-arender
 ingress:
   hostname: company-d.multitenant.nuxeo.com
+  tls: 
+    - hosts:
+      - company-d.multitenant.nuxeo.com
+      secretName: company-d-tls
 customProperties:
   tenant: |
     nuxeo.tenantId=company-d

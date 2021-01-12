@@ -1,7 +1,12 @@
 nameOverride: company-c
 architecture: api-worker
+replicaCount: 1
 ingress:
   hostname: company-c.multitenant.nuxeo.com
+  tls: 
+    - hosts:
+      - company-c.multitenant.nuxeo.com
+      secretName: company-c-tls
 customProperties:
   tenant: |
     nuxeo.tenantId=company-c
@@ -12,3 +17,6 @@ extraVolumes:
   - name: gcpcconfig
     secret:
       secretName: nuxeo-company-c-gcp-sa
+customEnvs:
+  - name: NUXEO_PROFILES
+    value: tenant

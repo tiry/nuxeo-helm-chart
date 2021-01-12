@@ -2,9 +2,17 @@
 
 T=$1
 
-echo "Deploy $T"
+echo "Deploy tenant $T"
+
+kubectl create namespace $T
+
+echo "Deploy letsencrypt Cert Issuer:"
+
+kubectl create -n $T -f tls-ingress/letsencrypt-prod-issuer.yaml
 
 # reprocess values.yaml to replace some env variables
+
+echo "Deploy Nuxeo Cluster:"
 
 envsubst < tenants/$T-values.yaml > tmp-$T-values.yaml
 
