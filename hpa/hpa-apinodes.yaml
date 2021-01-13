@@ -1,0 +1,16 @@
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nuxeo-$TENANT-worker
+spec:
+  maxReplicas: 3
+  minReplicas: 1
+  metrics:
+ - resource:
+      name: cpu
+      targetAverageUtilization: 80
+    type: Resource    
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nuxeo-$TENANT-worker

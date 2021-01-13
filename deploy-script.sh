@@ -9,6 +9,7 @@ kubectl create namespace $T
 echo "Deploy letsencrypt Cert Issuer:"
 
 kubectl create -n $T -f tls-ingress/letsencrypt-prod-issuer.yaml
+kubectl create -n $T -f tls-ingress/letsencrypt-staging-issuer.yaml
 
 # reprocess values.yaml to replace some env variables
 

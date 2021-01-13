@@ -41,6 +41,12 @@ Add the tls entry in the ingress descriptor:
 
 The Cert-Issuer needs to be created either in the target "tenant" namespace or in the kube-system namespace.
 
+## RateLimits
+
+Because of the Ratelimit (50 certificate request / months) on the production issuer, it is advised to use the staging env for testing.
+
+see: https://letsencrypt.org/docs/rate-limits/
+
 ## References: 
 
  https://cert-manager.io/docs/installation/kubernetes/

@@ -1,261 +1,212 @@
-# Nuxeo Helm Chart
+# About
 
-This chart aims to deploy the Nuxeo Platform in a development or staging environment, such as preview in Kubernetes.
+This repository is initially a fork of [nuxeo-helm-chart](https://github.com/nuxeo/nuxeo-helm-chart) with the aim to provide a simple way to deploy Nuxeo in multi-tenants on a GKE/K8S cluster.
 
-> WARNING
-The `nuxeo` chart is not production-ready by default.
+Progressively, this repository evolved to be become a simple'overlay' of the default Helm Chart from [nuxeo-helm-chart](https://github.com/nuxeo/nuxeo-helm-chart) in order to just contain the needed configuration and additional resources.
 
-By default, this chart deploys the strict minimum to have Nuxeo running:
+## Additions
 
-- Single Nuxeo node.
-- No persistence for binaries.
-- H2 database.
-- Elasticsearch embebedded.
-- Chronicle Queue for the WorkManager and Nuxeo Streams.
+Compared to the default Helm Chart, this repository provides several adjustemnts:
 
-The [values-production](./nuxeo/values-production.yaml) file provides a sample "production-like" configuration to guide people wanting to use this chart to make a "real" deployment of Nuxeo in Kubernetes, relying on:
+ - deploy the shared storage layer with a configuration closer to production
+    - HA + persistence 
+    - see values files in the [storage](storage) directory
+ - provide sample configuration for multiple tenants
+    - shared configuration
+    - per-tenant configuration
+    - see values files in the [tenants](tenants) directory
+ - deploy monitoring and a grafana dashboard
+    - see [monitoring](monitoring)
+ - configure pod autoscaling
+    - see [hpa](hpa)
+ - configure TLS encryption using letsencryt
+    - see [tls](tls)
+ - deploy Nuxeo Enhancer Viewer in multi-tenants mode
+    - see [nev](nev) (WIP)
 
-- A Nuxeo cluster.
-- Persistence for binaries.
-- MongoDB with a replicaSet and persistence.
-- An Elasticsearch cluster with several replicas and persistence.
-- A Kafka cluster with several replicas and persistence.
+## Docker image and Nuxeo plugins
 
-This is just a sample, the subcharts referenced as dependencies need a fine-grained configuration to be suitable for production, see the available values of the related Helm charts:
+To make testing easier, we use the image built by the code in [nuxeo-tenant-test-image](https://github.com/tiry/nuxeo-tenant-test-image):
 
-- [MongoDB](https://github.com/bitnami/charts/blob/master/bitnami/mongodb/values-production.yaml)
-- [PostgreSQL](https://github.com/bitnami/charts/blob/master/bitnami/postgresql/values-production.yaml)
-- [Elasticsearch](https://github.com/helm/charts/blob/master/stable/elasticsearch/values.yaml)
-- [Kafka](https://github.com/helm/charts/blob/master/incubator/kafka/values.yaml)
-- [Redis](https://github.com/bitnami/charts/blob/master/bitnami/redis/values-production.yaml)
+ - provide a simple way to identify tenants visually by configuring login screen
+ - custom K8S metrics for HPA
+ - http session extender to allow to scale out/down without being disconnected
+ - build and publish in GCR a ready to deploy image (w or w/o NEV)
 
-Currently, there is a single version of this chart for all the versions of Nuxeo.
+# K8S Setup 
 
-## Chart Dependencies
+## Helm 3
 
-### Dependency List
+Helm3 needs to be available in your environment.
 
-This chart has the following dependencies as subcharts:
+## Install ingress controler Nginx
 
-- [MongoDB](https://github.com/bitnami/charts/tree/master/bitnami/mongodb)
-- [PostgreSQL](https://github.com/bitnami/charts/tree/master/bitnami/postgresql/)
-- [Elasticsearch](https://github.com/helm/charts/tree/master/stable/elasticsearch)
-- [Kafka/ZooKeeper](https://github.com/helm/charts/tree/master/incubator/kafka)
-- [Redis](https://github.com/bitnami/charts/tree/master/bitnami/redis)
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml
 
-To list the chart dependencies:
+	kubectl wait --namespace ingress-nginx \
+	  --for=condition=ready pod \
+	  --selector=app.kubernetes.io/component=controller \
+	  --timeout=90s
 
-```shell
-helm dependency list nuxeo
-```
+# Deploy nuxeo Cluster
 
-### How to Enable/Disable Dependencies
+## Principles used to deploy multiple nuxeo application
 
-To run Nuxeo with MongoDB, PostgreSQL, Kafka, etc., you need to enable the related dependencies.
+### Shared storage
 
-When the chart is **deployed directly**, these dependencies are controlled by the following tags in the [values.yaml](nuxeo/values.yaml) file:
+The shared storage services (mongodb, elasticsearch, kafka, redis ...) are deployed in a dedicated namespace (for example `nx-shared-storage` namespace).
 
-```yaml
-tags:
-  mongodb: false
-  postgresql: false  
-  elasticsearch: false
-  kafka: false
-  redis: false
-  
-```
+Each new tenant is composed of:
 
-To enable any of these, just set the corresponding tag to `true` when installing the chart:
+ - Nuxeo pods running in a dedicated *"tenant"* namespace 
+ - a new storage space allocated inside the shared storage layer
+    - `<tenant>` database in MongoDB
+    - `<tenant>-` prefix for Elasticsearch indexes
+    - `<tenant>-` prefix for Kafka topic
 
-```shell
-# deploy MongoDB along with Nuxeo
-helm install nuxeo --set tags.mongodb=true
-```
+### Tenant deployment
 
-When the chart is **deployed as a dependency of another chart**, these dependencies are controlled by setting values such as `nuxeo.mongodb.deploy` or `nuxeo.elasticsearch.deploy` to `true`.
+Each tenant is the deployment of a new namespace containing Nuxeo pods.
 
-For example, let's take a chart using the `nuxeo` chart as a dependency, which can be the case of a `preview` chart in Jenkins X:
+The Nuxeo pods are running a custom Nuxeo image that contains the tenant specific set of packages and configuration.
 
-```yaml
-dependencies:
-  - name: nuxeo
-    version: 0.1.0
-    repository: http://jenkins-x-chartmuseum:8080
-    alias: nuxeo
-```
+Currently, the service account used by the Nuxeo tenant to access the Storage Services is expected to have the rights to creaate DB, and indexes.
 
-In this case, you can enable MongoDB and Elasticsearch, or any of the other supported subcharts, with the following values in the `values.yaml` file of the `preview` chart:
+When generating the deployment template for a trenant, the values will be take from:
 
-```yaml
-nuxeo:
-  mongodb:
-    deploy: true
-  elasticsearch:
-    deploy: true
-```
+ - the default `values.yaml`
+ - the `nuxeo-shared-values.yaml` for the configuration shared between tenants of the same cluster
+ - the `<tenantId>-values.yaml` for the configuration specific to a tenant
+ 
+### Ingress
 
-### How to Install Dependencies Without Nuxeo
+For each tenant, we deploy (in the same namespace) an ingress that will accept request for hostname `<tenantId>.domain.com`. 
 
-To install some dependency subcharts, e.g. `mongodb` and `elasticsearch`, without installing Nuxeo:
+## Deploy 
 
-```yaml
-nuxeo:
-  enable: false
-tags:
-  mongodb: true
-  elasticsearch: true
-```
+### Deploy Storage layer
 
-This is useful to run the nuxeo unit tests in an production-like environment.
+Use the provided shell script:
 
-## Installing the Chart
+    ./deploy-storage.sh
 
-If you enable some dependencies, make sure you download the related charts before:
+This shell script is simply executing `helm install` on the helm chart for the storage service providers.
 
-```shell
-helm dependency update nuxeo
-```
+    helm3 upgrade -i  nuxeo-es  elasticsearch --repo https://helm.elastic.co  --version 7.9.2 -n   nx-shared-storage  --create-namespace  -f storage/es-values.yaml 
 
-To install the `nuxeo` chart:
+Because we use Helm3, we can set the target namespace.
 
-```shell
-helm install nuxeo --name RELEASE_NAME
-```
+The deploy-storage.sh supports 2 variant:
 
-You can override any value of the base [values.yaml](nuxeo/values.yaml) file by creating your own `myvalues.yaml` file and pass it to the `helm install` command:
+    ./deploy-storage.sh
 
-```shell
-helm install nuxeo --name RELEASE_NAME -f myvalues.yaml
-```
+Will deploy a "dev" minimal storage layer.
 
-You can also pass values directly to the `helm install` command:
+    ./deploy-storage.sh PROD
 
-```shell
-helm install nuxeo --name RELEASE_NAME --set nuxeo.image.tag=x.y.z
-```
+Will deploy a more production grade storage layer:
 
-For example, to install some packages using a Nuxeo CLID:
+ - Elasticsearch
+    - 3 master nodes
+    - 3 data nodes
+ - MongoDB
+    - 2 repocaset nodes
+    - 1 arbitrer node
+ - Kafka
+    - 3 brokers
+    - 3 zookeepers
 
-```shell
-helm install nuxeo --name RELEASE_NAME --set nuxeo.packages=nuxeo-web-ui,nuxeo-drive --set nuxeo.clid=NUXEO_CLID
-```
+### Deploy a tenant
 
-In the same way, you can override any subchart value by using the subchart name as a prefix:
+Use the provided shell script:
 
-```shell
-helm install nuxeo --name RELEASE_NAME --set mongodb.persistence.enabled=true
-```
+    ./deploy-tenant1.sh
 
-To see the templates of the inatalled chart:
+We are simply calling Helm install in a dedciated namespace:
 
-```shell
-helm get manifest RELEASE_NAME
-```
+    helm3 upgrade -i nuxeo \
+     -n tenant1 --create-namespace \
+	 -f tenants/nuxeo-shared-values.yaml \
+	 -f tenants/tenant1-values.yaml \
+	 --debug \
+	 --set clid=${NXCLID} \
+     --set gcpb64=${NXGCPB64} \
+	  nuxeo
 
-## Upgrading an Existing Deployment
+The tenant specific configuration is located in tenants/tenant1-values.yaml
 
-For example, to enable persistence for the binaries and logs:
+    nameOverride: company-a
+    architecture: api-worker
+    ingress.hostname: company-a.nxmt
 
-```shell
-helm upgrade RELEASE_NAME --set nuxeo.persistence.enabled=true nuxeo
-```
+The architecture choice is currently between:
 
-## Uninstalling the Chart
+ - singleNode: only one type of Nuxeo node is deployed
+ - api-worker: deploys 2 types of pods
+    - api nodes : exposed via the ingress but not processing any async work
+    - worker nodes: not exposed via the ingress and dedicated to async processing
 
-```shell
-helm delete --purge RELEASE_NAME
-```
+## Testing the cluster
 
-## Parameters
+### http access
 
-The following tables lists some of the configurable parameters of this chart and their default values. See [values.yaml](nuxeo/values.yaml) for the complete list.
+There are 2 deployed nuxeo:
 
-| Parameter                   | Description                             | Default                                 |
-| --------------------------- | --------------------------------------- | --------------------------------------- |
-| `nuxeo.enable`              | Enable Nuxeo                            | `true`                                  |
-| `nuxeo.image.repository`    | Nuxeo image name                        | `docker.packages.nuxeo.com/nuxeo/nuxeo` |
-| `nuxeo.image.tag`           | Nuxeo image tag                         | `latest`                                |
-| `nuxeo.persistence.enabled` | Enable persistence of binaries and logs | `false`                                 |
+ - company-a.nxmt/nuxeo
+ - company-b.nxmt/nuxeo
+ 
+### Checking ES indices
 
-## Using Minikube
+Enter one of the Nuxeo containers for tenant1
 
-### Install Minikube and Helm
+    kubectl get pods -n tenant1
 
-Follow the [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) and [Helm](https://helm.sh/docs/intro/install/)
-installation guides.
+Sample output:
 
-Below is the procedure for Ubuntu 18.04:
+    NAME                              READY   STATUS    RESTARTS   AGE
+    nuxeo-company-a-874b8b574-gnc7z   1/1     Running   0          41m
+    nuxeo-company-a-874b8b574-vr89t   1/1     Running   0          41m
 
-```shell
-# Check VM support, the following command must output something
-egrep --color 'vmx|svm' /proc/cpuinfo
+Enter one of the Nuxeo pod
 
-# Update apt
-sudo apt update && sudo apt upgrade
-sudo apt install -y apt-transport-https
+    kubectl exec -n tenant1 -ti nuxeo-company-a-874b8b574-gnc7z -- /bin/bash
 
-# Install latest VirtualBox package from https://www.virtualbox.org/wiki/Linux_Downloads
+Then from within the shell in Nuxeo:
 
-# Install kubectl
-sudo snap install kubectl --classic
-kubectl version
+	wget -O  - http://elasticsearch-master.nx-shared-storage.svc.cluster.local:9200/_cat/indices
+    
+### Checking Mongo Databases
 
-# Install Minikube
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-chmod +x minikube
-sudo mv minikube /usr/local/bin
+    get pods -n nx-shared-storage | grep mongodb
 
-# Install helm
-sudo snap install helm --classic
-```
+	kubectl exec -ti -n nx-shared-storage nuxeo-mongodb-5865fd69c8-xbfx4 -- /bin/bash
 
-### Initialize Minikube and Helm
+Start Mongo CLI
 
-```shell
-# Start with a bigger VM
-minikube start --cpus 4 --memory 8192 --disk-size 10g
+    mongo -u root -p XXX
 
-# Enable some addons
-minikube addons enable ingress
-minikube addons enable storage-provisioner
+Listing databases
 
-# Initialize Helm
-helm init --history-max 200
+    db.adminCommand( { listDatabases: 1 } )
 
-# Enable incubator repository needed for Kafka
-helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-helm repo update
+Listing collections
 
-# Test the dashboard
-minikube dashboard
-```
+    use company-a
+    db.runCommand( { listCollections: 1, nameOnly: true } )
 
-### Deploy Nuxeo
+### Checking Kafka
 
-Try to deploy Nuxeo by installing the `nuxeo` chart:
+    kubectl get pods -n nx-shared-storage | grep kafka
 
-```shell
-helm install \
- --name my-nuxeo \
- --debug \
- --set nuxeo.packages=nuxeo-web-ui \
- --set tags.mongodb=true \
- --set tags.elasticsearch=true \
- --set nuxeo.ingress.enabled=true \
- --set nuxeo.clid='<insert the content of your instance.clid file in a single line replacing the new line with -->' \
-  nuxeo
-```
+    kubectl exec -ti nuxeo-kafka-0 -n nx-shared-storage  -- /bin/bash
 
-Nuxeo will be exposed on `http://$MINIKUBE IP/`.
+List Kafka topics:
 
-## Versioning and Releasing
+    kafka-topics --list --zookeeper nuxeo-kafka-zookeeper
 
-When a pull request is merged to master:
+### Scale
 
-- The [patch version](nuxeo/Chart.yaml#L4) of the chart is automatically incremented.
-- The chart is released to the [Jenkins X ChartMuseum](http://chartmuseum.jenkins-x.io/index.yaml).
-- A GitHub [tag](https://github.com/nuxeo/nuxeo-helm-chart/tags) is created.
+kubectl scale deployment.v1.apps/nuxeo-cluster-nuxeo-app1 --replicas=2
 
-See the [Jenkinsfile](Jenkinsfile) for more details.
 
-The major and minor versions can be incremented manually.
+

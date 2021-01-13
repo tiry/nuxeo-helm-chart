@@ -13,9 +13,7 @@ For NEV, the target model is to:
     - i.e. here the default namespace is `nev-shared`
  - for each tenant/nuxeo cluster, a new arender-previewer pod is deployed in the target namespace
 
-### Deploying
-
-This is a WIP!
+### Deploying (WIP!)
 
 Deploy ARender shared services (target namespace will be `nev-shared` )
 
