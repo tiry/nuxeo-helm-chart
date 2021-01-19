@@ -1,6 +1,10 @@
 nameOverride: company-b
 ingress:
   hostname: company-b.multitenant.nuxeo.com
+  tls: 
+    - hosts:
+      - company-b.multitenant.nuxeo.com
+      secretName: static-wildcard-tls
 customProperties:
   tenant: |
     nuxeo.tenantId=company-b

@@ -6,14 +6,17 @@ echo "Deploy tenant $T"
 
 kubectl create namespace $T
 
-echo "Deploy letsencrypt Cert Issuer:"
+echo "Deploy letsencrypt Certificate Issuers"
 
 kubectl create -n $T -f tls-ingress/letsencrypt-prod-issuer.yaml
 kubectl create -n $T -f tls-ingress/letsencrypt-staging-issuer.yaml
 
-# reprocess values.yaml to replace some env variables
+echo "Deploy wildcard static certificate"
+./tls-ingress/create-tls-secret-from-pem.sh $T
 
 echo "Deploy Nuxeo Cluster:"
+
+# preprocess values.yaml to replace some env variables
 
 envsubst < tenants/$T-values.yaml > tmp-$T-values.yaml
 

@@ -1,4 +1,3 @@
-
 ## Install Cert-Manager in K8S cluster
 
     kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
@@ -43,17 +42,54 @@ The Cert-Issuer needs to be created either in the target "tenant" namespace or i
 
 ## RateLimits
 
-Because of the Ratelimit (50 certificate request / months) on the production issuer, it is advised to use the staging env for testing.
+Because of the Ratelimit (50 certificate requests / month) on the production issuer, it is advised to use the staging env for testing.
+
+However, the staging env issues certificates with a Root CA that is not valide ...
 
 see: https://letsencrypt.org/docs/rate-limits/
 
+## Alternative option: Wildcard certificates
+
+Because of the ratelimit, we are using a wildcard certificate on *.multitenant.nuxeo.com.
+
+For this purpose, just add your certiciate in 2 PEM encoded files 
+
+ - wildcard-cert.pem for the certificate
+ - wildcard-key.pem for the private key
+
+If you want to check that the certificate is readable and in the expected format:
+
+    openssl x509 -in wildcard-cert.pem -text -noout
+
+Then you need to create, for each namespace, a secret holding the certificate:
+
+   ./create-tls-secret-from-pem.sh
+
+This is a simple wrapper around
+
+   kubectl create secret tls static-wildcard-tls -n tenant-ns \
+    --cert=wildcard-cert.pem \
+    --key=wildcard-key.pem
+
+In this case, be sure that your ingress does not require the cert-manager and commented out the corresponding part:
+
+    ingress:
+    enabled: true
+    annotations:
+        nginx.ingress.kubernetes.io/affinity: cookie
+        nginx.ingress.kubernetes.io/affinity-mode: persistent
+        nginx.ingress.kubernetes.io/proxy-body-size: 100m
+        kubernetes.io/ingress.class: "nginx"    
+    #    cert-manager.io/issuer: "letsencrypt-staging"
+
+
 ## References: 
 
- https://cert-manager.io/docs/installation/kubernetes/
+https://cert-manager.io/docs/installation/kubernetes/
 
- https://cloud.google.com/kubernetes-engine/docs/concepts/ingress-xlb
+https://cloud.google.com/kubernetes-engine/docs/concepts/ingress-xlb
 
- https://rancher.com/docs/rancher/v2.x/en/installation/resources/tls-secrets/
+https://rancher.com/docs/rancher/v2.x/en/installation/resources/tls-secrets/
 
- https://stackoverflow.com/questions/51572249/why-does-google-cloud-show-an-error-when-using-clusterip
+https://stackoverflow.com/questions/51572249/why-does-google-cloud-show-an-error-when-using-clusterip
 

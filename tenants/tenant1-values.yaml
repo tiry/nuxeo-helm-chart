@@ -2,6 +2,10 @@ nameOverride: company-a
 architecture: api-worker
 ingress:
   hostname: company-a.multitenant.nuxeo.com
+  tls: 
+    - hosts:
+      - company-a.multitenant.nuxeo.com
+      secretName: static-wildcard-tls
 customProperties:
   tenant: |
     nuxeo.tenantId=company-a

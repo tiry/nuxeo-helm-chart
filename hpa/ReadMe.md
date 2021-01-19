@@ -63,6 +63,23 @@ For the second point, the addon expose an aggregated metrics called `nuxeo.async
 
 ## Deploying HPA
 
+Use the `deploy-hpa.sh`:
+
+ - first arg should be the target namespace
+ - second arg should be the name of the company (what was used to create the deployment name)
+
+Typically, for a tenant named `company-c` and deployed in namespace `tenant3`:
+
+   ./deploy-hpa.sh tenant3 company-c
+
+To verify that everything works:
+
+    kubectl get hpa  -n tenant3 
+
+    NAME                        REFERENCE                           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+    nuxeo-company-c-async-hpa   Deployment/nuxeo-company-c-worker   0/900m    1         5         1          7m51s
+    nuxeo-company-c-cpu-hpa     Deployment/nuxeo-company-c-api      6%/80%    1         5         1          7m52s
+
 ## Testing Autoscaling
 
 ### API Nodes
@@ -112,6 +129,14 @@ You can also check the HPA
     Normal  SuccessfulRescale  7m37s  horizontal-pod-autoscaler  New size: 3; reason: cpu resource utilization (percentage of request) above target
     Normal  SuccessfulRescale  37s    horizontal-pod-autoscaler  New size: 1; reason: All metrics below target
 
+#### Monitoring
+
+The screenshot below shows how API nodes auto-scale when CPU load is applied.
+
+![CPU AutoScale Dashboard](img/cpu-autoscale.png)
+
+The current dashboard show only one tenant deployed with initially 1 API node and 1 worker node.
+
 ### Worker nodes
 
 #### Generating load to validate Scale out
@@ -135,4 +160,12 @@ You can check the Events in the corresponding hpa
     Normal  SuccessfulRescale  27m   horizontal-pod-autoscaler  New size: 2; reason: pods metric custom.googleapis.com|nuxeo|dropwizard5_nuxeo.async.load_gauge above target
     Normal  SuccessfulRescale  18m   horizontal-pod-autoscaler  New size: 3; reason: pods metric custom.googleapis.com|nuxeo|dropwizard5_nuxeo.async.load_gauge above target
     Normal  SuccessfulRescale  8m7s  horizontal-pod-autoscaler  New size: 1; reason: All metrics below target
+
+#### Monitoring
+
+The screenshot below shows how Worker nodes auto-scale when ASync workload is applied.
+
+![ASync Worker AutoScale Dashboard](img/async-autoscale.png)
+
+The current dashboard show only one tenant deployed with initially 1 API node and 1 worker node.
 

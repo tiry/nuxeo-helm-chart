@@ -7,7 +7,7 @@ ingress:
   tls: 
     - hosts:
       - company-d.multitenant.nuxeo.com
-      secretName: company-d-tls
+      secretName: static-wildcard-tls
 customProperties:
   tenant: |
     nuxeo.tenantId=company-d
