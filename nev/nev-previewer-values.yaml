@@ -1,11 +1,25 @@
-web-ui:
+--- 
+web-ui: 
   enabled: true
-  environment:
-    - name: ARENDERSRV_NUXEO_CLIENT_TIMEOUT
-    value: "60"
-    - name: ARENDERSRV_NUXEO_SERVER_CONTEXT_PATH
-    value: /nuxeo
-    - name: ARENDERSRV_NUXEO_SERVER_ARENDER_SECRET
-    value: OAUTH2_SECRET
-    - name: ARENDERSRV_NUXEO_SERVER_URL
-    value: xxx.nxmt
+  config:
+    labels: {}
+    annotations: {}
+  environment: 
+    ARENDERSRV_NUXEO_SERVER_URL: "https://company-d.multitenant.nuxeo.com"
+    ARENDERSRV_NUXEO_CLIENT_TIMEOUT: "60"
+    ARENDERSRV_NUXEO_SERVER_CONTEXT_PATH: /nuxeo
+    ARENDERSRV_NUXEO_SERVER_ARENDER_SECRET: OAUTH2_SECRET
+  ingress: 
+    annotations: 
+      kubernetes.io/ingress.class: nginx
+    enabled: true
+    hosts: 
+      - host: arender-company-d.multitenant.nuxeo.com
+        paths: 
+        - /
+#            serviceName: arender-web-ui
+#            servicePort: 80
+    tls: 
+      - hosts: 
+          - arender-company-d.multitenant.nuxeo.com
+        secretName: static-wildcard-tls

@@ -82,6 +82,25 @@ In this case, be sure that your ingress does not require the cert-manager and co
         kubernetes.io/ingress.class: "nginx"    
     #    cert-manager.io/issuer: "letsencrypt-staging"
 
+If your wild card certificate was issued through intermediate CA it will not be an issue for the browser: they will automatically download the intermediate certificate, but it may not be the case for some clients like th JDK.
+
+Trying to connect to TLS enpoint using wildcard certificate using intermediates will result in errors like:
+
+    javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+
+To solve that you need to get the full chain of certificates are append them all in the same pem file before creating the secret.
+
+Typically:
+
+    cat STAR_multitenant_nuxeo_com.crt > wildcard-cert-chain.pem
+    cat USERTrustRSAAAACA.crt >> wildcard-cert-chain.pem
+    cat SectigoRSADomainValidationSecureServerCA.crt >> wildcard-cert-chain.pem
+
+Then you can use this pem in the command to create the secret:
+
+    kubectl create secret tls static-wildcard-tls-chain -n my-tenant \
+      --cert=wildcard-cert-chain.pem \
+      --key=wildcard-key.pem
 
 ## References: 
 
