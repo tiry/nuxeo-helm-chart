@@ -11,18 +11,23 @@ Compared to the default Helm Chart, this repository provides several adjustemnts
  - deploy the shared storage layer with a configuration closer to production
     - HA + persistence 
     - see values files in the [storage](storage) directory
+    - see the `deploy-storage.sh` script
  - provide sample configuration for multiple tenants
     - shared configuration
     - per-tenant configuration
     - see values files in the [tenants](tenants) directory
+    - see the `deploy-tenantX.sh` script
  - deploy monitoring and a grafana dashboard
-    - see [monitoring](monitoring)
+    - see the [monitoring](monitoring) folder and associated [ReadMe](monitoring/ReadMe.md)
  - configure pod autoscaling
-    - see [hpa](hpa)
- - configure TLS encryption using letsencryt
-    - see [tls](tls)
- - deploy Nuxeo Enhancer Viewer in multi-tenants mode
-    - see [nev](nev) (WIP)
+    - see [hpa](hpa) folder and associated [ReadMe](hpa/ReadMe.md)
+ - configure TLS encryption using letsencryt or static wildcard certificates
+    - see [tls-ingress](tls-ingress) folder and and associated [ReadMe](tls-ingress/ReadMe.md)
+ - deploy Nuxeo Enhanced Viewer in multi-tenants mode
+    - see [nev](nev) folder and associated [ReadMe](nev/ReadMe.md)
+
+
+![Multitenant K8S deployment overview](img/k8s-mt-overview.png)
 
 ## Docker image and Nuxeo plugins
 
@@ -32,6 +37,15 @@ To make testing easier, we use the image built by the code in [nuxeo-tenant-test
  - custom K8S metrics for HPA
  - http session extender to allow to scale out/down without being disconnected
  - build and publish in GCR a ready to deploy image (w or w/o NEV)
+
+Versions used in these tests :
+
+ - Nuxeo 11.4.42
+ - google-storage-11.4.42.zip
+ - nuxeo-web-ui-3.1.0-rc.9.zip
+ - nuxeo-arender-11.0.0-RC1.zip
+
+NB: need to align on LTS when available
 
 # K8S Setup 
 
@@ -152,8 +166,8 @@ The architecture choice is currently between:
 
 There are 2 deployed nuxeo:
 
- - company-a.nxmt/nuxeo
- - company-b.nxmt/nuxeo
+ - company-a.multitenant.nuxeo.com/nuxeo
+ - company-b.multitenant.nuxeo.com/nuxeo
  
 ### Checking ES indices
 
