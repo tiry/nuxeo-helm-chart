@@ -4,6 +4,9 @@ web-ui:
   config:
     labels: {}
     annotations: {}
+  rendition:
+    hosts:
+      - http://arender-rendition-broker.nev-shared.svc.cluster.local:8761
   environment: 
     ARENDERSRV_NUXEO_SERVER_URL: "https://company-d.multitenant.nuxeo.com"
     ARENDERSRV_NUXEO_CLIENT_TIMEOUT: "60"
