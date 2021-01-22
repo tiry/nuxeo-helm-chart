@@ -1,28 +1,53 @@
 ### About Nuxeo Enhanced Viewer
 
-This modules provides tools to deploy Nuxeo Emhanced Viewer in a K8S cluster.
+This module provides tools to deploy Nuxeo Emhanced Viewer in a K8S cluster.
 
 The idea is that inside the K8S cluster:
 
  - multiple Nuxeo clusters can be deployed: each Nuxeo cluster is in a dedicated namespace
  - a shared storage namespace provides the services needs for persistence
 
-For NEV, the target model is to:
+For NEV, the idea is to use a similar model:
 
  - deploy the ARender "rendition" services in a shared namespace
     - i.e. here the default namespace is `nev-shared`
  - for each tenant/nuxeo cluster, a new arender-previewer pod is deployed in the target namespace
 
-### Deploying (WIP!)
+### Deploying
+
+#### Secrets
+
+Both deployment scripts (deploy-preview.sh and deploy-shared-infrastructure.sh) include the deployment of the needed secrets to be able to fetch the containers via the script:
+
+    ./init-secret.sh $tenant
+
+For that the current script expect 2 environment variables:
+
+    NEXUS_TOKEN_NAME: login to fetch the Docker images
+    NEXUS_TOKEN_PASS: password to fetch the Docker images
+
+#### Deploy shared services
 
 Deploy ARender shared services (target namespace will be `nev-shared` )
 
     nev/deploy-shared-services.sh
 
+#### Deploy tenant specific previewer
+
 Deploy ARender previewer in tenant/namespace "tenant4"
 
-    nev/init-secret.sh tenant4
     nev/deploy-preview.sh tenant4    
+
+On the Nuxeo side, you need to use an image that container the ARender addon and deploy custom configuration properties (see `tenant4-values.yaml` for an example)
+
+    arender: |
+      arender.server.previewer.host=https://arender-company-d.multitenant.nuxeo.com
+      nuxeo.arender.oauth2.client.create=true
+      nuxeo.arender.oauth2.client.id=arender
+      nuxeo.arender.oauth2.client.secret=OAUTH2_SECRET
+      nuxeo.arender.oauth2.client.redirectURI=/login/oauth2/code/nuxeo
+
+NB: Nuxeo and NEV need to be deployed using TLS since we are using secured cookies. See `tls-ingress` sub folder.
 
 ### NEV resources
 

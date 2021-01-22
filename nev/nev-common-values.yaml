@@ -11,6 +11,8 @@ rendition:
     image:
       repository: docker-arender.packages.nuxeo.com/arender-document-converter
       tag: 4.0.9.NX1.0
+    autoscale:
+      enabled: true	
   dfs:
     image:
       repository: docker-arender.packages.nuxeo.com/arender-document-file-storage
@@ -19,13 +21,16 @@ rendition:
     image:
       repository: docker-arender.packages.nuxeo.com/arender-document-text-handler
       tag: 4.0.9.NX1.0
+    autoscale:
+      enabled: true	
   renderer:
     image:
       repository: docker-arender.packages.nuxeo.com/arender-document-renderer
       tag: 4.0.9.NX1.0
+    autoscale:
+      enabled: true	
 web-ui:
   enabled: false
   image:
     repository: docker-arender.packages.nuxeo.com/nuxeo/arender-previewer
     tag: 11.0.0-RC1
-  
