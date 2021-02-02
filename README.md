@@ -160,6 +160,34 @@ The architecture choice is currently between:
     - api nodes : exposed via the ingress but not processing any async work
     - worker nodes: not exposed via the ingress and dedicated to async processing
 
+## Sample deployments
+
+4 configurations are provided for testing purpose:
+
+**Tenant 1**
+
+ - description: standard deployment with 2 types of Nuxeo nodes (Api and Worker nodes)
+ - namespace: api-worker
+ - DNS: company-a.multitenant.nuxeo.com
+
+**Tenant 2**
+
+ - description: minimal deployment with only one type of node
+ - namespace: minimal
+ - DNS: company-b.multitenant.nuxeo.com
+
+**Tenant 3**
+
+ - description: API/Worker deployment with HPA for Autoscaling
+ - namespace: autoscale
+ - DNS: company-c.multitenant.nuxeo.com
+ 
+**Tenant 4**
+
+ - description: API/Worker deployment with Nuxeo Extended Viewer
+ - namespace: nuxeo-nev
+ - DNS: company-d.multitenant.nuxeo.com 
+
 ## Testing the cluster
 
 ### http access
@@ -221,6 +249,3 @@ List Kafka topics:
 ### Scale
 
 kubectl scale deployment.v1.apps/nuxeo-cluster-nuxeo-app1 --replicas=2
-
-
-

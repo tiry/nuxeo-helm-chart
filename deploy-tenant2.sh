@@ -1,3 +1,5 @@
 #/bin/bash
 
-./deploy-script.sh tenant2
+echo "minimal deployment with a single node type for Nuxeo"
+
+./deploy-script.sh minimal

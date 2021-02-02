@@ -1,3 +1,6 @@
 #/bin/bash
 
-./deploy-script.sh tenant1
+echo "deployment with api and worker nodes for Nuxeo"
+
+./deploy-script.sh api-worker
+

@@ -1,4 +1,15 @@
 #/bin/bash
 
-./deploy-script.sh tenant4
+echo "Deploy Nuxeo with Extended Viewer"
+
+./deploy-script.sh nuxeo-nev
+
+echo "Deploy NEV"
+
+cd nev
+
+./deploy-preview.sh nuxeo-nev
+
+cd ..
+
 
