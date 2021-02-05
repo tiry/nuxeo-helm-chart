@@ -188,6 +188,12 @@ The architecture choice is currently between:
  - namespace: nuxeo-nev
  - DNS: company-d.multitenant.nuxeo.com 
 
+**Tenant 5**
+
+ - description: API/Worker deployment with usage metrics
+ - namespace: dashboard
+ - DNS: company-e.multitenant.nuxeo.com 
+
 ## Testing the cluster
 
 ### http access

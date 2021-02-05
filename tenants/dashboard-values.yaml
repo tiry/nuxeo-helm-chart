@@ -1,0 +1,18 @@
+nameOverride: company-e
+architecture: api-worker
+ingress:
+  hostname: company-e.multitenant.nuxeo.com
+  tls: 
+    - hosts:
+      - company-e.multitenant.nuxeo.com
+      secretName: static-wildcard-tls
+customProperties:
+  tenant: |
+    nuxeo.tenantId=company-e
+    # k8s_pod vs k8s_container vs default
+    nuxeo.stackdriver.forceResourceType=k8s_pod
+    metrics.streams.enabled=true
+extraVolumes:
+  - name: gcpcconfig
+    secret:
+      secretName: nuxeo-company-e-gcp-sa
