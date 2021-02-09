@@ -14,3 +14,7 @@ spec:
           serviceName: grafana
           servicePort: 80
     host: grafana.multitenant.nuxeo.com
+  tls: 
+    - hosts:
+      - grafana.multitenant.nuxeo.com
+      secretName: static-wildcard-tls

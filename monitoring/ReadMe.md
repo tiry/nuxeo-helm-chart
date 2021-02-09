@@ -35,4 +35,23 @@ Just run the provided script that will create a k8s ingress:
 
     ./deploy-grafana-ingress.sh
 
+## Example Dashboards
+
+### System Dashboard
+
+Monitor key components used to determine HPA/Autoscale
+
+[json definition](dashboard.json)
+
+<img src="../img/system-dash.png" width="800px">
+
+### Usage Dashboard
+
+Display some usage statistics.
+
+based on addon: [nuxeo-statistics](https://github.com/nuxeo-sandbox/nuxeo-statistics)
+
+[json definition](usage-dashboard-with-pie.json)
+
+<img src="../img/usage-dash.png" width="800px">
 
