@@ -1,5 +1,6 @@
 nameOverride: company-e
 architecture: api-worker
+replicaCount: 1
 ingress:
   hostname: company-e.multitenant.nuxeo.com
   tls: 
@@ -12,6 +13,7 @@ customProperties:
     # k8s_pod vs k8s_container vs default
     nuxeo.stackdriver.forceResourceType=k8s_pod
     metrics.streams.enabled=true
+    elasticsearch.httpReadOnly.baseUrl=http://elasticsearch-master.nx-shared-storage.svc.cluster.local:9200
 extraVolumes:
   - name: gcpcconfig
     secret:

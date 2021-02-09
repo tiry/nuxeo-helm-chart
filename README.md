@@ -250,7 +250,7 @@ Listing collections
 
 List Kafka topics:
 
-    kafka-topics --list --zookeeper nuxeo-kafka-zookeeper
+    kafka-topics.sh --list --zookeeper nuxeo-kafka-zookeeper
 
 ### Scale
 

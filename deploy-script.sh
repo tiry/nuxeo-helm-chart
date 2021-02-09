@@ -6,13 +6,16 @@ echo "Deploy tenant $T"
 
 kubectl create namespace $T
 
-echo "Deploy letsencrypt Certificate Issuers"
 
-kubectl create -n $T -f tls-ingress/letsencrypt-prod-issuer.yaml
-kubectl create -n $T -f tls-ingress/letsencrypt-staging-issuer.yaml
+./tls-ingress/deploy-tls-if-needed.sh $T
 
-echo "Deploy wildcard static certificate"
-./tls-ingress/create-tls-secret-from-pem.sh $T
+#echo "Deploy letsencrypt Certificate Issuers"
+#kubectl create -n $T -f tls-ingress/letsencrypt-prod-issuer.yaml
+#kubectl create -n $T -f tls-ingress/letsencrypt-staging-issuer.yaml
+
+#echo "Deploy wildcard static certificate"
+#./tls-ingress/create-tls-secret-from-pem.sh $T
+
 
 echo "Deploy Nuxeo Cluster:"
 
