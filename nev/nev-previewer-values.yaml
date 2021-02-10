@@ -20,9 +20,12 @@ web-ui:
       - host: arender-company-d.multitenant.nuxeo.com
         paths: 
         - /
-#            serviceName: arender-web-ui
-#            servicePort: 80
     tls: 
       - hosts: 
           - arender-company-d.multitenant.nuxeo.com
         secretName: static-wildcard-tls
+  deployment:
+    readinessProbe:
+      path: /arendergwt/health/records
+    livenessProbe:
+      path: /arendergwt/gwt/standard/standard.css        
