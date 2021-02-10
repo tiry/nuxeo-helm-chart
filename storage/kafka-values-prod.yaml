@@ -18,3 +18,4 @@ zookeeper:
   replicaCount: 3
   persistence:
     enabled: true
+deleteTopicEnable: true
