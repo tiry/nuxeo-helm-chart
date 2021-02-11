@@ -196,3 +196,56 @@ The screenshot below shows how Worker nodes auto-scale when ASync workload is ap
 
 The current dashboard show only one tenant deployed with initially 1 API node and 1 worker node.
 
+## Scale to 0 - WIP / ideas
+
+### Goal
+
+The goal is to be able to autoscale to 0 when there is no workload.
+The idea is to make an inactive tenant very cheap to run, while allowing to quickly scale as soon as the workload increases.
+
+We want to consider 3 cases of workload to autoscale
+
+#### API node / Interactive workload
+
+To enable scaling to 0 we need 2 things
+
+ - have an ingress that can drives autoscaling depending on incomming load
+    - KNative / Istio seem to be a solution
+ - make Nuxeo start within 10s
+    - skip initContainers
+    - run pre-processing outside of the Docker filesystem
+
+#### Worker nodes
+
+For worker nodes, scaling down to 0 would be great, but:
+
+ - if we have no worker node, we have nothing to report the lag metrics
+    - would need to run the underlying computation on a api node
+ - standard HPA does not support scaling to 0
+    - would need KPA from KServe (KNative)
+
+We could also just make that Nuxeo container does not start until needed:
+  
+  - add initContainer that way for work to do
+  - add check & wait in Nuxeo Docker EntryPoint
+
+=> Could use a kafka/stream.sh command to check if there is pending work.  
+
+The best option would probably be to use an Operator that can encapsulate all the logic.
+
+#### Custom on demand workload
+
+Typical examples would be:
+
+ - conversion jobs
+ - custom / business specific processing
+
+We need :
+
+ - a queuing / event system
+    - KEvent / CloudEvent
+ - Consumers / Producers
+    - KServe?
+
+
+

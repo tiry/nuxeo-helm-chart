@@ -224,6 +224,14 @@ Usage of the `api-worker` architecture is useful to scale the pods according to 
  - namespace: dashboard
  - DNS: company-e.multitenant.nuxeo.com 
 
+**Tenant 6**
+
+ - description: deploy the sample `final1` multi-level studio project
+ - namespace: final1
+ - DNS: final1.multitenant.nuxeo.com 
+
+See: https://github.com/nuxeo/nuxeo-sample-multi-final1/
+
 ## Testing the cluster
 
 ### https access
@@ -318,4 +326,5 @@ The current approach is to rely on existing K8S resources:
  - deploy helm charts representing the various part of a Nuxeo Deployment
  - deploy metrics and HPA for auto-scaling
 
-
+The more the hierarchy of scripts is complexe, the more it would make sense to have a global controller to handle all the deployment rules/options.
+Here, an operator would make sense.
