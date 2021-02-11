@@ -1,12 +1,12 @@
 # About
 
-This repository is initially a fork of [nuxeo-helm-chart](https://github.com/nuxeo/nuxeo-helm-chart) with the aim to provide a simple way to deploy Nuxeo in multi-tenants on a GKE/K8S cluster.
+This repository is initially a fork of [nuxeo-helm-chart](https://github.com/nuxeo/nuxeo-helm-chart) with the aim to provide a simple way to deploy Nuxeo in multitenant on a GKE/K8S cluster.
 
-Progressively, this repository evolved to be become a simple 'overlay' of the default Helm Chart from [nuxeo-helm-chart](https://github.com/nuxeo/nuxeo-helm-chart) in order to just contain the needed configuration and additional resources.
+Progressively, this repository evolved to become a simple 'overlay' of the default Helm Chart from [nuxeo-helm-chart](https://github.com/nuxeo/nuxeo-helm-chart) just to contain the needed configuration and additional resources.
 
 Typically, the goals are:
 
- - provide a multi-tenant deployment of Nuxeo
+ - provide a multitenant deployment of Nuxeo
  - support multiple types of Nuxeo architecture
  - manage autoscaling
  - manage monitoring
@@ -34,15 +34,14 @@ Compared to the default Helm Chart, this repository provides several additions:
  - deploy Nuxeo Enhanced Viewer in multi-tenants mode
     - see [nev](nev) folder and associated [ReadMe](nev/ReadMe.md)
 
-The diagram below provides a logical overview of the deployed 
+The diagram below provides a logical overview of the deployed pods and services.
 ![Multitenant K8S deployment overview](img/k8s-mt-overview.png)
 
 ## Docker image and Nuxeo plugins
 
 To make testing easier, we use the image built by the code in [nuxeo-tenant-test-image](https://github.com/tiry/nuxeo-tenant-test-image).
 
-The provided Package contains:
-
+In addition to a Nuxeo Server + WebUI, some custom packages are provided:
  - a [dummy plugin](https://github.com/tiry/nuxeo-tenant-test-image/tree/master/plugins/plugin-core) to visually identify tenants from the login screen
  - [custom metrics reporter](https://github.com/tiry/nuxeo-tenant-test-image/tree/master/plugins/k8s-hpa-metrics) that tags the metric to emnable usage by HPA
  - [http session extender](https://github.com/tiry/nuxeo-tenant-test-image/tree/master/plugins/nuxeo-extended-session) to allow to scale out/down without being disconnected
@@ -63,7 +62,7 @@ Versions used in these tests :
  - nuxeo-web-ui-3.1.0-rc.9.zip
  - nuxeo-arender-11.0.0-RC1.zip
 
-NB: need to align on LTS when available
+TODO: need to align on LTS 2021
 
 # K8S Setup 
 
@@ -71,21 +70,21 @@ NB: need to align on LTS when available
 
 Helm3 needs to be available in your (client environment).
 
-## Install ingress controler Nginx
+## Install ingress controller Nginx
 
 You need to deploy an ingress controller in your K8S cluster.
-We use nginx in order to be as platform agnostic as possible.
+We use Nginx in order to be as platform-agnostic as possible.
 
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml
 
-	kubectl wait --namespace ingress-nginx \
-	  --for=condition=ready pod \
-	  --selector=app.kubernetes.io/component=controller \
-	  --timeout=90s
+    kubectl wait --namespace ingress-nginx \
+      --for=condition=ready pod \
+      --selector=app.kubernetes.io/component=controller \
+      --timeout=90s
 
 # Deploy the Nuxeo Cluster
 
-## Principles used to deploy multiple nuxeo applications
+## Principles used to deploy multiple Nuxeo applications
 
 ### Shared storage
 
@@ -99,25 +98,28 @@ Each new tenant is composed of:
     - `<tenant>-` prefix for Elasticsearch indexes
     - `<tenant>-` prefix for Kafka topic
 
-The assumtion is that the Shared Storage is deployed first and then the Nuxeo tenants are deployed.
+The assumption is that the Shared Storage is deployed first, and then the Nuxeo tenants are deployed.
 
 ### Tenant deployment
 
 Each tenant is the deployment of a new namespace containing Nuxeo pods.
 
-The Nuxeo pods are running a custom Nuxeo image that contains the tenant specific set of packages and configuration. Here, in the provided examples, all tenants run basically the same image and simply have a different `tenantId` but nothing prevent to change the deployed image in the `tennants/*-values.yaml`.
+The Nuxeo pods are running a custom Nuxeo image that contains the tenant-specific set of packages and configuration. Here, in the provided examples, all tenants run the same image and only differ by a 'tenantId' property (visible on the login screen) 
+However, nothing prevents changing the deployed image in the `tennants/*-values.yaml` : for example, this is the case for the `nuxeo-nev` tenant that uses an image with the ARender connector.
 
-Currently, the service account used by the Nuxeo tenant to access the Storage Services is expected to have the rights to creaate DB, and indexes.
+Currently, the service account used by the Nuxeo tenant to access the Storage Services is expected to have the rights to create DB, and indexes.
 
-When generating the deployment template for a trenant, the values will be take from:
+When generating the deployment template for a tenant, the values will be taken from:
 
- - the default `values.yaml`
- - the `nuxeo-shared-values.yaml` for the configuration shared between tenants of the same cluster
- - the `<tenantId>-values.yaml` for the configuration specific to a tenant
+ - the default `values.yaml` from the chart
+ - the `nuxeo-shared-values.yaml` 
+    - for the configuration shared between tenants of the same cluster
+ - the `<tenantId>-values.yaml` 
+    - for the configuration specific to a tenant
  
 ### Ingress
 
-For each tenant, we deploy (in the same namespace) an ingress that will accept request for hostname `<tenantId>.domain.com`. 
+For each tenant, we deploy (in the same namespace) an ingress that will accept requests for hostname `<tenantId>.domain.com`. 
 
 ## Deploy 
 
@@ -161,18 +163,18 @@ Use the provided shell script:
 
     ./deploy-tenant1.sh
 
-We are simply calling Helm install in a dedciated namespace:
+We are simply calling Helm install in a dedicated namespace:
 
     helm3 upgrade -i nuxeo \
      -n tenant1 --create-namespace \
-	 -f tenants/nuxeo-shared-values.yaml \
-	 -f tenants/tenant1-values.yaml \
-	 --debug \
-	 --set clid=${NXCLID} \
+     -f tenants/nuxeo-shared-values.yaml \
+     -f tenants/tenant1-values.yaml \
+     --debug \
+     --set clid=${NXCLID} \
      --set gcpb64=${NXGCPB64} \
-	  nuxeo
+      nuxeo
 
-The tenant specific configuration is located in tenants/tenant1-values.yaml
+The tenant-specific configuration is located in tenants/tenant1-values.yaml
 
     nameOverride: company-a
     architecture: api-worker
@@ -180,10 +182,13 @@ The tenant specific configuration is located in tenants/tenant1-values.yaml
 
 The architecture choice is currently between:
 
- - singleNode: only one type of Nuxeo node is deployed
- - api-worker: deploys 2 types of pods
+ - `singleNode`: 
+    - only one type of Nuxeo node is deployed
+ - `api-worker`: deploys 2 types of pods
     - api nodes : exposed via the ingress but not processing any async work
     - worker nodes: not exposed via the ingress and dedicated to async processing
+
+Usage of the `api-worker` architecture is useful to scale the pods according to the type of workload that is applied.
 
 ## Sample deployments
 
@@ -230,7 +235,7 @@ There are 5 deployed nuxeo:
  - ...
  - https://company-e.multitenant.nuxeo.com/nuxeo
 
-When deployed, Grafana will be availble on: https://grafana.multitenant.nuxeo.com/
+When deployed, Grafana will be available on https://grafana.multitenant.nuxeo.com/
 
 ### Checking ES indices
 
@@ -250,13 +255,13 @@ Enter one of the Nuxeo pod
 
 Then from within the shell in Nuxeo:
 
-	wget -O  - http://elasticsearch-master.nx-shared-storage.svc.cluster.local:9200/_cat/indices
+    wget -O  - http://elasticsearch-master.nx-shared-storage.svc.cluster.local:9200/_cat/indices
     
 ### Checking Mongo Databases
 
     get pods -n nx-shared-storage | grep mongodb
 
-	kubectl exec -ti -n nx-shared-storage nuxeo-mongodb-5865fd69c8-xbfx4 -- /bin/bash
+    kubectl exec -ti -n nx-shared-storage nuxeo-mongodb-5865fd69c8-xbfx4 -- /bin/bash
 
 Start Mongo CLI
 
