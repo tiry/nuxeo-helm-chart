@@ -13,7 +13,12 @@ customProperties:
     # k8s_pod vs k8s_container vs default
     nuxeo.stackdriver.forceResourceType=k8s_pod
     metrics.streams.enabled=true
+    # Enable ES passthrough 
     elasticsearch.httpReadOnly.baseUrl=http://elasticsearch-master.nx-shared-storage.svc.cluster.local:9200
+    # Configure fast statistics udpate to make testing easier
+    nuxeo.statistics.computer.default.interval=5m
+    nuxeo.statistics.snapshot.default.interval=5m
+    nuxeo.statistics.aggregate.default.interval=5m
 extraVolumes:
   - name: gcpcconfig
     secret:
