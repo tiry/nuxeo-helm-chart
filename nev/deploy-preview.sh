@@ -6,7 +6,7 @@ tenant=$1
 
 echo "Add previewer to tenant $tenant"
 
-./init-secret.sh $tenant
+../repositories/deploy-arender-repository-secret.sh $tenant
 
 helm3 upgrade -i arender arender \
      --repo https://packages.nuxeo.com/repository/helm-releases/  \

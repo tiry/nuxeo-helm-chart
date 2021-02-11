@@ -1,6 +1,6 @@
 #/bin/bash
 
-./init-secret.sh nev-shared
+../repositories/deploy-arender-repository-secret.sh nev-shared
 
 helm3 upgrade -i arender arender \
      --repo https://packages.nuxeo.com/repository/helm-releases/  \
