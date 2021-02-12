@@ -1,0 +1,24 @@
+nameOverride: final1
+architecture: api-worker
+replicaCount: 1
+image:
+  repository: docker-private.packages.nuxeo.com/nuxeo/nuxeo-sample-final1
+  tag: 30.1
+  pullSecrets:
+    - name: nxprivate-repo
+ingress:
+  hostname: final1.multitenant.nuxeo.com
+  tls: 
+    - hosts:
+      - final1.multitenant.nuxeo.com
+      secretName: static-wildcard-tls
+customProperties:
+  tenant: |
+    nuxeo.tenantId=final1
+    # k8s_pod vs k8s_container vs default
+    nuxeo.stackdriver.forceResourceType=k8s_pod
+    metrics.streams.enabled=true
+extraVolumes:
+  - name: gcpcconfig
+    secret:
+      secretName: nuxeo-final1-gcp-sa
