@@ -1,0 +1,24 @@
+nameOverride: company-g
+replicaCount: 1
+image:
+  repository: gcr.io/jx-preprod/nuxeo-mt-stream
+ingress:
+  hostname: company-g.multitenant.nuxeo.com
+  tls: 
+    - hosts:
+      - company-g.multitenant.nuxeo.com
+      secretName: static-wildcard-tls
+customProperties:
+  tenant: |
+    nuxeo.tenantId=company-g
+    # k8s_pod vs k8s_container vs default
+    nuxeo.stackdriver.forceResourceType=k8s_pod
+    metrics.streams.enabled=true  
+extraVolumes:
+  - name: gcpcconfig
+    secret:
+      secretName: nuxeo-company-g-gcp-sa
+customEnvs:
+  - name: NUXEO_PROFILES
+    value: tenant
+
