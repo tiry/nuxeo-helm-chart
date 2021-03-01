@@ -33,4 +33,4 @@ web-ui:
   enabled: false
   image:
     repository: docker-arender.packages.nuxeo.com/nuxeo/arender-previewer
-    tag: 11.0.0-RC1
+    tag: 2021.0.0

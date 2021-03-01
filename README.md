@@ -57,12 +57,10 @@ The 2 resulting images (w or w/o NEV) are then pushed to GCR that feeds the GKE 
 
 Versions used in these tests :
 
- - Nuxeo 11.4.42
- - google-storage-11.4.42.zip
- - nuxeo-web-ui-3.1.0-rc.9.zip
- - nuxeo-arender-11.0.0-RC1.zip
-
-TODO: need to align on LTS 2021
+ - Nuxeo 2021.0
+ - google-storage-2021.0.17.zip
+ - nuxeo-web-ui-3.0.2.zip
+ - nuxeo-arender-2021.0.0.zip
 
 # K8S Setup 
 
